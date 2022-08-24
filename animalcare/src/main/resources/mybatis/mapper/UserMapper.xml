@@ -20,6 +20,9 @@
             <result property="postId" column="post_id"/>
             <result property="userId" column="post_user_id"/>
             <result property="postContent" column="post_content"/>
+<!--            <collection property="commentList" ofType="Comment">
+
+            </collection>-->
         </collection>
         <collection property="petList" ofType="Pet">
             <result property="petId" column="pet_id"/>

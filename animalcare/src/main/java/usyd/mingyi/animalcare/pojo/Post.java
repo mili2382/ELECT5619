@@ -14,8 +14,7 @@ public class Post {
     private Integer userId;
     private Integer love;
     private String postContent;
-
-    private List<String> commentList;
+    private List<Comment> commentList;
     private List<String> videoUrlList;
     private List<String> imageUrlList;
 
