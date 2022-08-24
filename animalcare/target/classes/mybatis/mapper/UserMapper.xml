@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="usyd.mingyi.animalcare.mapper.UserMapper">
+    <select id="queryUser" resultMap="userInfo">
+        select *
+        from user u,post po,pet pe
+        where u.id = po.post_user_id and u.id = pe.pet_user_id and u.username = #{username} and u.password = #{password}
+    </select>
+
+    <resultMap id="userInfo" type="User">
+        <result property="id" column="id"/>
+        <result property="userName" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="uuid" column="uuid"/>
+        <result property="userImageAddress" column="user_image_address"/>
+        <collection property="postList" ofType="Post">
+            <result property="postId" column="post_id"/>
+            <result property="userId" column="post_user_id"/>
+            <result property="postContent" column="post_content"/>
+        </collection>
+        <collection property="petList" ofType="Pet">
+            <result property="petId" column="pet_id"/>
+            <result property="userId" column="pet_user_id"/>
+            <result property="petName" column="name"/>
+            <result property="petImageAddress" column="pet_image_address"/>
+        </collection>
+    </resultMap>
+
+</mapper>
