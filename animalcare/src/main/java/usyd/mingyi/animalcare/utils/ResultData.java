@@ -16,8 +16,8 @@ public class ResultData<t> {
 
     public static <t> ResultData<t> success(t data) {
         ResultData<t> resultData = new ResultData<>();
-        resultData.setStatus(ReturnCode.RC100.getCode());
-        resultData.setMessage(ReturnCode.RC100.getMessage());
+        resultData.setStatus(ReturnCode.RC200.getCode());
+        resultData.setMessage(ReturnCode.RC200.getMessage());
         resultData.setData(data);
         return resultData;
     }
