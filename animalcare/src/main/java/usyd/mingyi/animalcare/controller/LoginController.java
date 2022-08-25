@@ -58,7 +58,7 @@ public class LoginController {
 
         userInfo.setPassword(JasyptEncryptorUtils.encode(userInfo.getPassword()));
         userInfo.setUuid(UUID.randomUUID().toString());
-        int i = userService.addUser(userInfo);
+        userService.addUser(userInfo);
         ResponseEntity.status(HttpStatus.OK);
 
 

@@ -7,7 +7,7 @@ import usyd.mingyi.animalcare.pojo.User;
 public interface UserService {
     User queryUser(String username, String password);
 
-    int addUser(User user);
+    void addUser(User user);
 
     String queryPassword(String username);
 }
