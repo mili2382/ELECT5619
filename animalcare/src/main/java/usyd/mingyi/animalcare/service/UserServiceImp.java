@@ -15,4 +15,14 @@ public class UserServiceImp implements  UserService{
     public User queryUser(String username, String password) {
         return  userMapper.queryUser(username,password);
     }
+
+    @Override
+    public int addUser(User user) {
+       return userMapper.addUser(user);
+    }
+
+    @Override
+    public String queryPassword(String username) {
+        return userMapper.queryPassword(username);
+    }
 }

@@ -32,4 +32,12 @@
         </collection>
     </resultMap>
 
+    <select id="addUser" parameterType="User">
+          insert into user (username,password,uuid,email) values (#{userName},#{password},#{uuid},#{email})
+    </select>
+
+    <select id="queryPassword" parameterType="String" resultType="String">
+        select password from user where username = #{username}
+    </select>
+
 </mapper>
