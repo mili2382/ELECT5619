@@ -25,4 +25,9 @@ public class UserServiceImp implements  UserService{
     public String queryPassword(String username) {
         return userMapper.queryPassword(username);
     }
+
+    @Override
+    public void updateUser(User user) {
+
+    }
 }

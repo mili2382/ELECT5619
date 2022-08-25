@@ -64,5 +64,12 @@ public class LoginController {
 
     }
 
+    public void updateUserInfo(@RequestBody User userInfo){
+
+        userService.updateUser(userInfo);
+        ResponseEntity.status(HttpStatus.OK);
+
+    }
+
 
 }

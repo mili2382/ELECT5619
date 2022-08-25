@@ -32,12 +32,18 @@
         </collection>
     </resultMap>
 
-    <select id="addUser" parameterType="User">
+    <insert id="addUser" parameterType="User">
           insert into user (username,password,uuid,email) values (#{userName},#{password},#{uuid},#{email})
-    </select>
+    </insert>
 
     <select id="queryPassword" parameterType="String" resultType="String">
         select password from user where username = #{username}
     </select>
+
+    <update id="updateUser" parameterType="User">
+        update user
+        set  =
+        where;
+    </update>
 
 </mapper>

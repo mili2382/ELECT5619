@@ -10,4 +10,6 @@ public interface UserService {
     void addUser(User user);
 
     String queryPassword(String username);
+
+    void updateUser(User user);
 }
