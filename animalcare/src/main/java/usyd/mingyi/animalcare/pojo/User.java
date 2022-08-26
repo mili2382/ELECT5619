@@ -17,6 +17,8 @@ public class User {
     private String userName;
     private String password;
     private String email;
+    private String nickName;
+    private String description;
     private String uuid;
     private String userImageAddress;
     private List<Post> postList;

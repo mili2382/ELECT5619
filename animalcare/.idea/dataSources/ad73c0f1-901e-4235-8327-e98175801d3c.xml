@@ -754,27 +754,246 @@ SELECT|sys.sys_config
       <ObjectGrants>ALL PRIVILEGES!
 </ObjectGrants>
     </user>
-    <table id="234" parent="2" name="dept">
-      <Comment>部门表</Comment>
-    </table>
-    <column id="235" parent="234" name="deptno">
+    <table id="234" parent="2" name="comment"/>
+    <table id="235" parent="2" name="friendlist"/>
+    <table id="236" parent="2" name="image"/>
+    <table id="237" parent="2" name="pet"/>
+    <table id="238" parent="2" name="post"/>
+    <table id="239" parent="2" name="user"/>
+    <table id="240" parent="2" name="video"/>
+    <column id="241" parent="234" name="comment_id">
       <Position>1</Position>
-      <DataType>bigint(20)|0s</DataType>
+      <DataType>int(5)|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="236" parent="234" name="dpname">
+    <column id="242" parent="234" name="comment_post_id">
       <Position>2</Position>
-      <DataType>varchar(60)|0s</DataType>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
     </column>
-    <column id="237" parent="234" name="dbsource">
+    <column id="243" parent="234" name="comment_time">
       <Position>3</Position>
-      <DataType>varchar(60)|0s</DataType>
+      <DataType>bigint(15)|0s</DataType>
     </column>
-    <key id="238" parent="234" name="PRIMARY">
+    <column id="244" parent="234" name="comment_content">
+      <Position>4</Position>
+      <DataType>varchar(100)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="245" parent="234" name="comment_post_id">
+      <ColNames>comment_post_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="246" parent="234" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
-      <ColNames>deptno</ColNames>
+      <ColNames>comment_id</ColNames>
       <Primary>1</Primary>
     </key>
+    <foreign-key id="247" parent="234" name="comment_ibfk_1">
+      <ColNames>comment_post_id</ColNames>
+      <RefTableName>post</RefTableName>
+      <RefColNames>post_id</RefColNames>
+    </foreign-key>
+    <column id="248" parent="235" name="list_id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="249" parent="235" name="user_id">
+      <Position>2</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="250" parent="235" name="friend_username">
+      <Position>3</Position>
+      <DataType>varchar(20)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="251" parent="235" name="user_id">
+      <ColNames>user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="252" parent="235" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>list_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="253" parent="235" name="friendlist_ibfk_1">
+      <ColNames>user_id</ColNames>
+      <RefTableName>user</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <column id="254" parent="236" name="image_id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="255" parent="236" name="image_post_id">
+      <Position>2</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="256" parent="236" name="image_url">
+      <Position>3</Position>
+      <DataType>varchar(50)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="257" parent="236" name="image_post_id">
+      <ColNames>image_post_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="258" parent="236" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>image_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="259" parent="236" name="image_ibfk_1">
+      <ColNames>image_post_id</ColNames>
+      <RefTableName>post</RefTableName>
+      <RefColNames>post_id</RefColNames>
+    </foreign-key>
+    <column id="260" parent="237" name="pet_id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="261" parent="237" name="pet_user_id">
+      <Position>2</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="262" parent="237" name="name">
+      <Position>3</Position>
+      <DataType>varchar(20)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="263" parent="237" name="pet_image_address">
+      <Position>4</Position>
+      <DataType>varchar(50)|0s</DataType>
+    </column>
+    <index id="264" parent="237" name="pet_user_id">
+      <ColNames>pet_user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="265" parent="237" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>pet_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="266" parent="237" name="pet_ibfk_1">
+      <ColNames>pet_user_id</ColNames>
+      <RefTableName>user</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <column id="267" parent="238" name="post_id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="268" parent="238" name="post_user_id">
+      <Position>2</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="269" parent="238" name="post_content">
+      <Position>3</Position>
+      <DataType>varchar(20)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="270" parent="238" name="post_time">
+      <Position>4</Position>
+      <DataType>bigint(15)|0s</DataType>
+    </column>
+    <index id="271" parent="238" name="post_user_id">
+      <ColNames>post_user_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="272" parent="238" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>post_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="273" parent="238" name="post_ibfk_1">
+      <ColNames>post_user_id</ColNames>
+      <RefTableName>user</RefTableName>
+      <RefColNames>id</RefColNames>
+    </foreign-key>
+    <column id="274" parent="239" name="id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="275" parent="239" name="username">
+      <Position>2</Position>
+      <DataType>varchar(20)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="276" parent="239" name="password">
+      <Position>3</Position>
+      <DataType>varchar(40)|0s</DataType>
+    </column>
+    <column id="277" parent="239" name="email">
+      <Position>4</Position>
+      <DataType>varchar(20)|0s</DataType>
+    </column>
+    <column id="278" parent="239" name="uuid">
+      <Position>5</Position>
+      <DataType>varchar(80)|0s</DataType>
+    </column>
+    <column id="279" parent="239" name="user_image_address">
+      <Position>6</Position>
+      <DataType>varchar(50)|0s</DataType>
+    </column>
+    <column id="280" parent="239" name="nickname">
+      <Position>7</Position>
+      <DataType>varchar(20)|0s</DataType>
+      <DefaultExpression>&apos;lazy to set name&apos;</DefaultExpression>
+    </column>
+    <column id="281" parent="239" name="description">
+      <Position>8</Position>
+      <DataType>varchar(200)|0s</DataType>
+      <DefaultExpression>&apos;this gay is very lazy to write decription&apos;</DefaultExpression>
+    </column>
+    <key id="282" parent="239" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="283" parent="240" name="video_id">
+      <Position>1</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="284" parent="240" name="video_post_id">
+      <Position>2</Position>
+      <DataType>int(5)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="285" parent="240" name="video_url">
+      <Position>3</Position>
+      <DataType>varchar(50)|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="286" parent="240" name="video_post_id">
+      <ColNames>video_post_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="287" parent="240" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>video_id</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <foreign-key id="288" parent="240" name="video_ibfk_1">
+      <ColNames>video_post_id</ColNames>
+      <RefTableName>post</RefTableName>
+      <RefColNames>post_id</RefColNames>
+    </foreign-key>
   </database-model>
 </dataSource>

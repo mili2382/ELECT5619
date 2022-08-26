@@ -1,5 +1,4 @@
-/*
-package usyd.mingyi.animalcare.config;
+/*package usyd.mingyi.animalcare.config;
 
 import org.apache.tomcat.util.descriptor.LocalResolver;
 import org.springframework.context.annotation.Bean;
@@ -26,5 +25,4 @@ public class MvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/index.html","/","/login","signup");
     }
 
-}
-*/
+}*/

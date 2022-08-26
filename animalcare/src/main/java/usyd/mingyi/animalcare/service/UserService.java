@@ -11,5 +11,5 @@ public interface UserService {
 
     String queryPassword(String username);
 
-    void updateUser(User user);
+    int updateUser(User user);
 }

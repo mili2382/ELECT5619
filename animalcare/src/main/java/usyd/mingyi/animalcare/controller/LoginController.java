@@ -64,10 +64,18 @@ public class LoginController {
 
     }
 
-    public void updateUserInfo(@RequestBody User userInfo){
+    @PostMapping("/edit")
+    public ResultData<Integer> updateUserInfo(@RequestBody User userInfo){
 
-        userService.updateUser(userInfo);
-        ResponseEntity.status(HttpStatus.OK);
+        int i = userService.updateUser(userInfo);
+        if(i>=1){
+            ResponseEntity.status(HttpStatus.OK);
+            return ResultData.success(1);
+        }else {
+           // ResponseEntity.status(HttpStatus.OK);
+            return ResultData.fail(400,"No such user");
+        }
+
 
     }
 
