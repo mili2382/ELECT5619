@@ -8,7 +8,7 @@ import usyd.mingyi.animalcare.pojo.User;
 @Repository
 public interface UserMapper {
     User queryUser(String username,String password);
-    void addUser(User user);
+    int addUser(User user);
     String queryPassword(String username);
     int updateUser(User user);
 }

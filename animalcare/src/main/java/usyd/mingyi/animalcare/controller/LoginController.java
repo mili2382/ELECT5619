@@ -54,13 +54,18 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
-    public  void signup(@RequestBody User userInfo){
+    public  ResultData<Integer> signup(@RequestBody User userInfo){
 
         userInfo.setPassword(JasyptEncryptorUtils.encode(userInfo.getPassword()));
         userInfo.setUuid(UUID.randomUUID().toString());
-        userService.addUser(userInfo);
-        ResponseEntity.status(HttpStatus.OK);
-
+        int i = userService.addUser(userInfo);
+        if(i>=1){
+            ResponseEntity.status(HttpStatus.OK);
+            return ResultData.success(1);
+        }else {
+            ResponseEntity.status(401);
+            return ResultData.fail(401,"signup fail");
+        }
 
     }
 
