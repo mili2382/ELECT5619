@@ -10,6 +10,10 @@ spring:
     restart:
       enabled: true
       additional-paths: src/main/java
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 1000MB
 
 
 #mybatis

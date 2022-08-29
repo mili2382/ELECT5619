@@ -4,13 +4,20 @@ package usyd.mingyi.animalcare.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import usyd.mingyi.animalcare.utils.FileStorage;
 import usyd.mingyi.animalcare.utils.JasyptEncryptorUtils;
 import usyd.mingyi.animalcare.utils.ResultData;
 import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.service.UserService;
 
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -82,6 +89,26 @@ public class LoginController {
         }
 
 
+    }
+
+    @PostMapping("/upload")
+    @ResponseBody
+    public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file) {
+
+        String username = "/741917776";//假设当前用户为 741917776这个用户
+        String path = ClassUtils.getDefaultClassLoader().getResource("public").getPath()+username;
+        String access = null;
+        try {
+            access=FileStorage.SaveFile(file,path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ResultData.fail(400,"fail");
+            ResponseEntity.status(400); //也可以用 HttpStatus.BAD_REQUEST常量 方便后期维护 我就偷懒了 兄弟们待会写的时候别偷懒
+        }
+        System.out.println(access);//返回值为文件名
+        String storage = username+"/"+access; //应该存在数据库的内容 其他电脑应该访问 ClassUtils.getDefaultClassLoader().getResource("public").getPath() +storage
+        System.out.println(storage);
+        return ResultData.success(1);
     }
 
 
