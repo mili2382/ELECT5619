@@ -4,6 +4,16 @@ spring:
     password: 123456
     url: jdbc:mysql://localhost:3306/db01?useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
+    mail:
+      host: smtp.qq.com
+      username: 741917776@qq.com
+      password: hpqnlhmljbvvbeib
+      default-encoding: UTF-8
+      port: 465
+      properties.smtp.auth: true
+      properties.smtp.timeout: 2500
+      properties.mail.smtp.ssl.enable: true
+
   thymeleaf:
     cache: true
   devtools:
@@ -14,6 +24,7 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 1000MB
+
 
 
 #mybatis

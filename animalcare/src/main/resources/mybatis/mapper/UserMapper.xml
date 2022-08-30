@@ -48,7 +48,7 @@
         where id = #{id};
     </update>
 
-    <select id="queryUser" resultType="User">
+    <select id="queryUserByUsername" resultType="User">
         select * from user where username = #{userName}
     </select>
 

@@ -48,4 +48,8 @@
         where id = #{id};
     </update>
 
+    <select id="queryUserByUsername" resultType="User">
+        select * from user where username = #{userName}
+    </select>
+
 </mapper>
