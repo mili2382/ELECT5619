@@ -71,6 +71,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!--qq邮件发送所需依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
 
     </dependencies>
 

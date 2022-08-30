@@ -15,6 +15,7 @@ import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.service.UserService;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -108,7 +109,20 @@ public class LoginController {
         System.out.println(access);//返回值为文件名
         String storage = username+"/"+access; //应该存在数据库的内容 其他电脑应该访问 ClassUtils.getDefaultClassLoader().getResource("public").getPath() +storage
         System.out.println(storage);
+        System.out.println(path+"/"+access);
         return ResultData.success(1);
+    }
+
+    @GetMapping("/download")
+    @ResponseBody
+    public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
+
+        String path = (String) map.get("path");
+        File file = new File(path);
+        FileInputStream inputStream = new FileInputStream(file);
+        byte[] bytes = new byte[inputStream.available()];
+        inputStream.read(bytes, 0, inputStream.available());
+        return ResultData.success(bytes);
     }
 
 
