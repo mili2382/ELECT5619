@@ -81,7 +81,7 @@ public class LoginController {
     public ResultData<String> usernameCheck(@RequestBody Map map){
         String userName =(String) map.get("userName");
 
-        User user = userService.queryUser(userName);
+        User user = userService.queryUserByUsername(userName);
         if(user==null){
 
             ResponseEntity.status(HttpStatus.OK);

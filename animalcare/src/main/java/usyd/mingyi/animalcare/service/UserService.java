@@ -13,5 +13,5 @@ public interface UserService {
 
     int updateUser(User user);
 
-    User queryUser(String username);
+    User queryUserByUsername(String username);
 }

@@ -32,8 +32,8 @@ public class UserServiceImp implements  UserService{
     }
 
     @Override
-    public User queryUser(String username) {
-        return userMapper.queryUser(username);
+    public User queryUserByUsername(String username) {
+        return userMapper.queryUserByUsername(username);
     }
 
 }
