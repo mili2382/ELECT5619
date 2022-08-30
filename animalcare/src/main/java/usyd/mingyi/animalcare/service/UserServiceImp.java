@@ -30,4 +30,10 @@ public class UserServiceImp implements  UserService{
     public int updateUser(User user) {
        return userMapper.updateUser(user);
     }
+
+    @Override
+    public User queryUser(String username) {
+        return userMapper.queryUser(username);
+    }
+
 }

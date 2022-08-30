@@ -77,6 +77,25 @@ public class LoginController {
 
     }
 
+    @PostMapping("/username")
+    public ResultData<String> usernameCheck(@RequestBody Map map){
+        String userName =(String) map.get("userName");
+
+        User user = userService.queryUser(userName);
+        if(user==null){
+
+            ResponseEntity.status(HttpStatus.OK);
+            return ResultData.success("OK");
+
+
+        }
+        ResponseEntity.status(HttpStatus.BAD_REQUEST);
+        return ResultData.success("NO");
+
+    }
+
+
+
     @PostMapping("/edit")
     public ResultData<Integer> updateUserInfo(@RequestBody User userInfo){
 

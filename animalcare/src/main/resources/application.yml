@@ -6,6 +6,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   mail:
     host: smtp.qq.com
+    username: 741917776@qq.com
+    password: hpqnlhmljbvvbeib
+    default-encoding: UTF-8
+    port: 465
+    properties.smtp.auth: true
+    properties.smtp.timeout: 2500
+    properties.mail.smtp.ssl.enable: true
   thymeleaf:
     cache: true
   devtools:
