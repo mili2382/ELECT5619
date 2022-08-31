@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -132,17 +134,30 @@ public class LoginController {
         return ResultData.success(1);
     }
 
-    @GetMapping("/download")
-    @ResponseBody
-    public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
+//    @GetMapping("/download")
+//    @ResponseBody
+//    public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
+//
+//        String path = (String) map.get("path");
+//        File file = new File(path);
+//        FileInputStream inputStream = new FileInputStream(file);
+//        byte[] bytes = new byte[inputStream.available()];
+//        inputStream.read(bytes, 0, inputStream.available());
+//        return ResultData.success(bytes);
+//    }
 
-        String path = (String) map.get("path");
-        File file = new File(path);
-        FileInputStream inputStream = new FileInputStream(file);
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes, 0, inputStream.available());
-        return ResultData.success(bytes);
+    @GetMapping("/get-pet-list")
+    public ResultData<List<Integer>> getPetList() throws IOException {
+//        TODO: get friends from database
+        System.out.println("getting pet list");
+        List<Integer> friends = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            friends.add(i);
+        }
+
+        return ResultData.success(friends);
     }
+
 
 
 }
