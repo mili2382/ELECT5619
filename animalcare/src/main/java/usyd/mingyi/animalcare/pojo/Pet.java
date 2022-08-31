@@ -11,6 +11,8 @@ public class Pet {
     private Integer petId;
     private Integer userId;
     private String petName;
+    private Integer age;
+    private String category;
     private String petImageAddress;
 
 }

@@ -49,7 +49,7 @@
     </update>
 
     <select id="queryUserByUsername" resultType="User">
-        select * from user where username = #{userName}
+        select * from user where username = #{username}
     </select>
 
 </mapper>

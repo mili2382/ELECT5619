@@ -21,8 +21,9 @@ public class User {
     private String description;
     private String uuid;
     private String userImageAddress;
+    private String Tag;
     private List<Post> postList;
     private List<Pet> petList;
-    private List<User> friendsList;
+    private List<User> friendRecordList;
 
 }

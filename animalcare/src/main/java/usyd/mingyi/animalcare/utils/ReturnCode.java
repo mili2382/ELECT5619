@@ -2,10 +2,7 @@ package usyd.mingyi.animalcare.utils;
 
 public enum ReturnCode {
     /**操作成功**/
-    RC200(200,"success"),
-    /**操作失败**/
-    RC999(999,"fail");
-
+    RC200(200,"success");
 
     /**自定义状态码**/
     private final int code;
