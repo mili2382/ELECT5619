@@ -158,20 +158,22 @@ public class LoginController {
             access=FileStorage.SaveFile(file,path);
         } catch (IOException e) {
             e.printStackTrace();
-            ResultData.fail(400,"fail");
             ResponseEntity.status(400); //也可以用 HttpStatus.BAD_REQUEST常量 方便后期维护 我就偷懒了 兄弟们待会写的时候别偷懒
+            return ResultData.fail(400,"Fail to upload");
+
         }
-        System.out.println(access);//返回值为文件名
-        String storage = username+"/"+access; //应该存在数据库的内容 其他电脑应该访问 ClassUtils.getDefaultClassLoader().getResource("public").getPath() +storage
-        System.out.println(storage);
-        System.out.println(path+"/"+access);
+
+       //将要存的文件名存到对应文件夹中
+
         return ResultData.success(1);
     }
 
     @GetMapping("/download")
-    public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
+    public ResultData<byte[]>  readFile(@RequestBody Map map) throws IOException {
 
-        String path = (String) map.get("path");
+        String username = "/741917776";//假设当前用户为 741917776这个用户
+        String fileName = (String) map.get("fileName");
+        String path = ClassUtils.getDefaultClassLoader().getResource("public").getPath()+username+"/"+fileName;
         File file = new File(path);
         FileInputStream inputStream = new FileInputStream(file);
         byte[] bytes = new byte[inputStream.available()];

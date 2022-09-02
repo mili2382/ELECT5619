@@ -5,7 +5,7 @@
 <mapper namespace="usyd.mingyi.animalcare.mapper.UserMapper">
     <select id="queryUser" resultMap="userInfo">
         SELECT *
-        FROM USER AS u
+        FROM user AS u
         LEFT JOIN post AS po ON u.id = po.post_user_id
         LEFT OUTER JOIN pet AS pe ON u.id = pe.pet_user_id
         WHERE u.username = #{username} and u.password = #{password}
