@@ -12,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import usyd.mingyi.animalcare.utils.FileStorage;
 import usyd.mingyi.animalcare.utils.JasyptEncryptorUtils;
@@ -147,8 +148,7 @@ public class LoginController {
         }
 
     }
-
-    @PostMapping("/upload")
+/*    @PostMapping("/upload")
     public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file) {
 
         String username = "/741917776";//假设当前用户为 741917776这个用户
@@ -164,12 +164,35 @@ public class LoginController {
         }
 
        //将要存的文件名存到对应文件夹中
+        System.out.println("This is image path: "+path);
+        return ResultData.success(1);
+    }*/
 
+        @PostMapping("/upload")
+    public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file) {
+
+        String username = "/741917776";//假设当前用户为 741917776这个用户
+        String path = "/userdata"+username; //windows系统下不允许存此路径会报错 这样设置是为了将docker中数据挂载在外面Linux中的磁盘上
+        String access = null;
+        try {
+            access=FileStorage.SaveFile(file,path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ResponseEntity.status(400); //也可以用 HttpStatus.BAD_REQUEST常量 方便后期维护 我就偷懒了 兄弟们待会写的时候别偷懒
+            return ResultData.fail(400,"Fail to upload");
+
+        }
+
+       //将要存的文件名存到对应文件夹中
+        System.out.println("This is image path: "+path);
         return ResultData.success(1);
     }
 
+
     @GetMapping("/download")
     public ResultData<byte[]>  readFile(@RequestBody Map map) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+
 
         String username = "/741917776";//假设当前用户为 741917776这个用户
         String fileName = (String) map.get("fileName");
@@ -179,6 +202,8 @@ public class LoginController {
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes, 0, inputStream.available());
         return ResultData.success(bytes);
+
+
     }
 
 

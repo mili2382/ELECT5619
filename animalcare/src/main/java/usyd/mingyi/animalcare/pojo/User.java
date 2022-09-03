@@ -26,4 +26,5 @@ public class User {
     private List<Pet> petList;
     private List<User> friendRecordList;
 
+
 }
