@@ -1,23 +1,30 @@
-/*package usyd.mingyi.animalcare.config;
+package usyd.mingyi.animalcare.config;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+import usyd.mingyi.animalcare.utils.ResultData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 
 //登录页面拦截器
 public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Object logSuccessUser = request.getSession().getAttribute("logSuccessUser");
-        if(logSuccessUser==null){
-            request.setAttribute("respone","please login first");
-            request.getRequestDispatcher("/index.html").forward(request,response);
-            return false;
-        }else {
+        HttpSession session = request.getSession(false);
+
+
+        if (session != null && session.getAttribute("id") != null) {
             return true;
+        } else {
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json; charset=utf-8");
+            response.setStatus(401);
+            PrintWriter out = response.getWriter();
+            out.append(ResultData.fail(401, "Please login first").toString());
+            return false;
         }
 
     }
@@ -31,4 +38,4 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 
     }
-}*/
+}
