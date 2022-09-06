@@ -12,8 +12,11 @@ import java.util.List;
 public class Post {
     private Integer postId;
     private Integer userId;
-    private Integer love;
+    private Boolean like;
     private String postContent;
+    private String tag;
+    private String topic;
+    private Long posTime; //sava timestamp
     private List<Comment> commentList;
     private List<String> videoUrlList;
     private List<String> imageUrlList;

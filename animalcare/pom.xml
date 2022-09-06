@@ -71,12 +71,18 @@
             <optional>true</optional>
         </dependency>
 
-        <!--qq邮件发送所需依赖-->
+        <!--Gmail邮件发送所需依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+       <!-- 导入带过期时间的Map-->
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>expiringmap</artifactId>
+            <version>0.5.8</version>
+        </dependency>
 
     </dependencies>
 
