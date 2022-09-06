@@ -20,6 +20,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -191,11 +193,19 @@ public class LoginController {
         return ResultData.success(1);
     }*/
 
-
+    @GetMapping("/get-pet-list")
+    public ResultData<List<Integer>> getPetList() throws IOException {
+//        TODO: get friends from database
+        System.out.println("getting pet list");
+        List<Integer> friends = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            friends.add(i);
+        }
+        return ResultData.success(friends);
+    }
+        
     @GetMapping("/download")
     public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
-
-
         String username = "/741917776";//假设当前用户为 741917776这个用户
         String fileName = (String) map.get("fileName");
         String path = ClassUtils.getDefaultClassLoader().getResource("public").getPath() + username + "/" + fileName;
@@ -204,9 +214,5 @@ public class LoginController {
         byte[] bytes = new byte[inputStream.available()];
         inputStream.read(bytes, 0, inputStream.available());
         return ResultData.success(bytes);
-
-
     }
-
-
 }
