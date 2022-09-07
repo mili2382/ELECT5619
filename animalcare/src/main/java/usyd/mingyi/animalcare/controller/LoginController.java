@@ -8,23 +8,19 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.service.UserService;
-import usyd.mingyi.animalcare.utils.FileStorage;
+import usyd.mingyi.animalcare.utils.ImageUtil;
 import usyd.mingyi.animalcare.utils.JasyptEncryptorUtils;
 import usyd.mingyi.animalcare.utils.ResultData;
 import usyd.mingyi.animalcare.utils.Verification;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 
 @RestController
@@ -150,28 +146,35 @@ public class LoginController {
     }
 
     @PostMapping("/upload")
-    public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file, HttpServletRequest httpServletRequest, HttpSession session) {
+    public ResponseEntity<Object> upLoadFile(@RequestBody Map map,HttpServletRequest request) {
 
+        String base64Data = (String) map.get("base64Data");
 
-        // String username = "/741917776";//假设当前用户为 741917776这个用户
+        HttpSession session = request.getSession();
+        String userName = (String) session.getAttribute("userName");
 
-        String username = (String) session.getAttribute("userName");
+        String data = "";//实体部分数
+        String suffix = "";//图片后缀，用以识别哪种格式数据
 
-        String path = ClassUtils.getDefaultClassLoader().getResource("public").getPath() + username;
-        String access = null;
-        try {
-            access = FileStorage.SaveFile(file, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            ResponseEntity.status(400); //也可以用 HttpStatus.BAD_REQUEST常量 方便后期维护 我就偷懒了 兄弟们待会写的时候别偷懒
-            return ResultData.fail(400, "Fail to upload");
-
+        if(ImageUtil.checkImage(base64Data)){
+            suffix=ImageUtil.getSuffix(base64Data);
+            data=ImageUtil.getData(base64Data);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
         }
 
-        //将要存的文件名存到对应文件夹中
-        System.out.println("This is image path: " + path);
-        return ResultData.success(1);
+        String tempFileName = UUID.randomUUID().toString() + suffix;
+        String path = "D:/userdata/"+userName+"/"+tempFileName;
+        try {
+            ImageUtil.generateImage(data,path);
+        } catch (IOException e) {
+            return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
+
+        }
+        return new ResponseEntity<>(ResultData.success("Success"), HttpStatus.OK);
+
     }
+
 
 /*        @PostMapping("/upload")
     public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file) {
