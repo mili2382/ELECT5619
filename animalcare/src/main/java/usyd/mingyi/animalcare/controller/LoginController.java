@@ -148,7 +148,8 @@ public class LoginController {
     @PostMapping("/upload")
     public ResponseEntity<Object> upLoadFile(@RequestBody Map map,HttpServletRequest request) {
 
-        String base64Data = (String) map.get("base64Data");
+        ArrayList<String> imageList =  (ArrayList<String>) map.get("base64Data");
+        String base64Data = imageList.get(0);
 
         HttpSession session = request.getSession();
         String userName = (String) session.getAttribute("userName");
@@ -164,7 +165,8 @@ public class LoginController {
         }
 
         String tempFileName = UUID.randomUUID().toString() + suffix;
-        String path = "D:/userdata/"+userName+"/"+tempFileName;
+        String path = "/Users/richard/Doc/images/"+userName+"/"+tempFileName;
+
         try {
             ImageUtil.generateImage(data,path);
         } catch (IOException e) {
