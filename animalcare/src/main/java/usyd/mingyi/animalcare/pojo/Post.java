@@ -20,5 +20,6 @@ public class Post {
     private List<Comment> commentList;
     private List<String> videoUrlList;
     private List<String> imageUrlList;
+    private String userAvatar;
 
 }

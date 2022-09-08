@@ -13,7 +13,9 @@
     </insert>
 
     <select id="getAllPosts" resultMap="postInfo">
-        select * from post AS po left join image AS i on po.post_id=i.image_post_id order by po.post_id DESC limit 10
+        select * from post AS po left join image AS i on po.post_id=i.image_post_id
+        left join user As u on po.post_user_id=u.id
+        order by po.post_id DESC limit 10
     </select>
     <resultMap id="postInfo" type="Post">
         <result property="postId" column="post_id"/>
@@ -23,9 +25,11 @@
         <result property="topic" column="topic"/>
         <result property="posTime" column="post_time"/>
         <result property="tag" column="tag"/>
+        <result property="userAvatar" column="user_image_address"/>
         <collection property="imageUrlList" ofType="String">
-           <result column="image_url"/>
+            <result column="image_url"/>
         </collection>
+
     </resultMap>
 
 </mapper>

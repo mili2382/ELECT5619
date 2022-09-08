@@ -1,14 +1,16 @@
 package usyd.mingyi.animalcare.utils;
+
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import usyd.mingyi.animalcare.pojo.Post;
 
 import java.io.*;
+import java.util.List;
+
+
 public class ImageUtil {
 
-    // 对字节数组字符串进行Base64解码并生成图片
-    //imgFilePath 待保存的本地路径
-    /*** 将base64字符串，生成文件 */
+
+    /* 把Base64字符串解码成图片并存到本地*/
     public static void convertBase64ToFile(String fileBase64String, String filePath, String fileName) {
         BufferedOutputStream bos = null;
         FileOutputStream fos = null;
@@ -20,6 +22,7 @@ public class ImageUtil {
                 System.out.println("创建成功");
                 dir.mkdirs();
             }
+            //byte[] bfile = Base64.getDecoder().decode(fileBase64String);
             byte[] bfile = Base64.decodeBase64(fileBase64String);
             file = new File(filePath + File.separator + fileName);
             fos = new FileOutputStream(file);
@@ -48,6 +51,30 @@ public class ImageUtil {
     }
 
 
+    /*把本地图片编码成base64字符串*/
+    public static String ImageToBase64ByLocal(String imgFile) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
+
+
+        InputStream in = null;
+        byte[] data = null;
+
+        // 读取图片字节数组
+        try {
+            in = new FileInputStream(imgFile);
+
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return Base64.encodeBase64String(data);
+
+    }
+
+    /*校验字符串是不是base64字符串*/
     public static boolean checkImage(String base64Data){
         String dataPrix = ""; //base64格式前头
         String data = "";//实体部分数据
@@ -85,6 +112,7 @@ public class ImageUtil {
         return true;
     }
 
+    /* 获取base64字符串的数据部分*/
     public static String getData(String base64Data){
         String dataPrix = ""; //base64格式前头
         String data = "";//实体部分数据
@@ -96,7 +124,7 @@ public class ImageUtil {
         return data;
     }
 
-
+    /* 获取字符串的后缀部分*/
     public static String getSuffix(String base64Data){
         String dataPrix = ""; //base64格式前头
         String data = "";//实体部分数据
@@ -123,8 +151,39 @@ public class ImageUtil {
         return suffix;
     }
 
+    /*数据库保存的是图片的名字,需要替换图片名字为base64数据*/
+    public static List<Post> replaceUrl(List<Post> allPosts,String path){
+        for (int i = 0; i < allPosts.size(); i++) {
 
+            Post post = allPosts.get(i);
+            List<String> imageUrlList = post.getImageUrlList();
 
+            String userAvatar = post.getUserAvatar();
+
+            for (int j = 0; j < imageUrlList.size(); j++) {
+                String fileName = imageUrlList.get(j);
+
+                imageUrlList.set(j,ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+            }
+            if(userAvatar.equals("default.jpg")){
+                //表明现在用户还是用的默认头像
+                //获取到上级路径
+                String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+               //System.out.println(rootPath);
+                post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(rootPath+userAvatar));
+            }else {
+                  //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+                post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(path+File.separator+userAvatar));
+            }
+
+            post.setImageUrlList(imageUrlList);
+            allPosts.set(i,post);
+
+        }
+        return allPosts;
+    }
+
+    /* 流处理*/
     public static byte[]  getBytesByStream(InputStream inputStream){
         byte[] bytes = new byte[1024];
 
@@ -141,8 +200,6 @@ public class ImageUtil {
         }
         return null;
     }
-
-
 
 
 }

@@ -20,12 +20,13 @@ public class MvcConfig implements WebMvcConfigurer {
                         "classpath:public/", "classpath:META-INF/resources/")
                 .addResourceLocations("file:///tmp/webapps/");
 
+       //registry.addResourceHandler("/images/**").addResourceLocations("file:D://userdata/741917776/");
     }
 
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginHandlerInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/signup", "/**/*.jpg");//放行模式
+                .excludePathPatterns("/login", "/signup", "/**/*.jpg","/username");//放行模式
     }
 
 }

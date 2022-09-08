@@ -92,21 +92,20 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.success("Signup success"), HttpStatus.OK);
 
         } else {
-            return new ResponseEntity<>(ResultData.fail(401, "Signup fail"), HttpStatus.BAD_REQUEST);
-
+            return new ResponseEntity<>(ResultData.fail(201, "Signup fail"), HttpStatus.CREATED);
         }
 
     }
 
     @GetMapping("/username")
     @ResponseBody
-    public ResponseEntity<Object> usernameCheck(@RequestBody Map map) {
-        String userName = (String) map.get("userName");
+    public ResponseEntity<Object> usernameCheck(@RequestParam("userName") String userName) {
+
         User user = userService.queryUserByUsername(userName);
         if (user == null) {
-            return new ResponseEntity<>(ResultData.success(true), HttpStatus.OK);
+            return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResultData.fail(400, "Fail"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResultData.fail(201, "Fail"), HttpStatus.CREATED);
 
     }
 
@@ -124,7 +123,7 @@ public class LoginController {
         mailMessage.setFrom("LMY741917776@gmail.com");
         mailSender.send(mailMessage);
         Verification.putCode(userName, code);
-        return new ResponseEntity<>(ResultData.success("Send success"), HttpStatus.OK);
+        return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
     }
 
     @PostMapping("/validate")
@@ -136,10 +135,10 @@ public class LoginController {
             if (Verification.getCode(userName).equals(code)) {
                 return new ResponseEntity<>(ResultData.success("Code equal"), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(ResultData.fail(400, "Code not equal"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(ResultData.fail(201, "Code not equal"), HttpStatus.CREATED);
             }
         }
-        return new ResponseEntity<>(ResultData.fail(400, "No code in the system"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResultData.fail(201, "No code in the system"), HttpStatus.CREATED);
     }
 
 
@@ -152,12 +151,11 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
 
         } else {
-            return new ResponseEntity<>(ResultData.fail(400, "Update fail"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ResultData.fail(201, "Update fail"), HttpStatus.CREATED);
 
         }
 
     }
-
 
 
     @GetMapping("/get-pet-list")
@@ -180,9 +178,7 @@ public class LoginController {
         String data = "";//实体部分数
         String suffix = "";//图片后缀，用以识别哪种格式数据
 
-        ArrayList<String> list = (ArrayList<String>)map.get("base64Data");
-
-
+        ArrayList<String> list = (ArrayList<String>) map.get("base64Data");
 
         HttpSession session = request.getSession();
 
@@ -194,83 +190,95 @@ public class LoginController {
         post.setLove(0);
         post.setPosTime(System.currentTimeMillis());
         post.setPostContent("Test post");
-        if( postService.addPost(post)!=1){
-            return new ResponseEntity<>(ResultData.fail(204, "Content invalid"), HttpStatus.NO_CONTENT);
+        if (postService.addPost(post) != 1) {
+            return new ResponseEntity<>(ResultData.fail(201, "Content invalid"), HttpStatus.CREATED);
         }
         Integer postId = post.getPostId();
 
         for (String base64Data : list) {
-            if(ImageUtil.checkImage(base64Data)){
-                suffix=ImageUtil.getSuffix(base64Data);
-                data=ImageUtil.getData(base64Data);
-            }else {
-                return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
+            if (ImageUtil.checkImage(base64Data)) {
+                suffix = ImageUtil.getSuffix(base64Data);
+                data = ImageUtil.getData(base64Data);
+            } else {
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
             }
 
 
-                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
 
 
-                String path = FILE_DISK_LOCATION+userName; //文件路径
-                System.out.println(path);
-                try {
-                    ImageUtil.convertBase64ToFile(data,path,tempFileName);
-                    postService.addImage(postId,tempFileName);
+            String path = FILE_DISK_LOCATION + userName; //文件路径
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
-
-                }
-            }
-
-            return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
-
-        }
-
-        @GetMapping("/getPosts")
-        @ResponseBody
-        public ResponseEntity<Object> getPosts() {
-
-            List<Post> allPosts = postService.getAllPosts();
-
-            return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
-        }
-
-
-        @GetMapping("/getImage")
-        public ResponseEntity<Object> getImage(@RequestParam("imageName") String imageName,HttpServletRequest request)  {
-            HttpSession session = request.getSession();
-            String userName = (String) session.getAttribute("userName");
-            String type = imageName.substring(imageName.lastIndexOf(".")+1);
-            System.out.println(type);
-
-            String path = FILE_DISK_LOCATION+userName+ File.separator+imageName;
-            System.out.println(path);
-            File file = new File(path);
-            InputStream inputStream = null;
             try {
-                inputStream = new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                return new ResponseEntity<>(ResultData.fail(204, "No such file"), HttpStatus.NO_CONTENT);
+                ImageUtil.convertBase64ToFile(data, path, tempFileName);
+                postService.addImage(postId, tempFileName);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+
             }
-
-            byte[] bytesByStream = ImageUtil.getBytesByStream(inputStream);
-
-            final HttpHeaders headers = new HttpHeaders();
-            if(type.equalsIgnoreCase("jpg")){
-                headers.setContentType(MediaType.IMAGE_JPEG);
-            }else if(type.equalsIgnoreCase("png")){
-                headers.setContentType(MediaType.IMAGE_PNG);
-            }else if(type.equalsIgnoreCase("gif")){
-                headers.setContentType(MediaType.IMAGE_GIF);
-            }else {
-                return new ResponseEntity<>(ResultData.fail(204, "Image invalid"), HttpStatus.NO_CONTENT);
-            }
-
-            return new ResponseEntity<>(bytesByStream,headers, HttpStatus.OK);
-
         }
 
+        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
     }
+
+    @GetMapping("/getPosts")
+    @ResponseBody
+    public ResponseEntity<Object> getPosts(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String userName = (String) session.getAttribute("userName");
+        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(), FILE_DISK_LOCATION + userName);
+        return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
+    }
+
+
+    //采用Restful风格进行一次传参
+
+    @GetMapping("/getPost/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getPosts(@PathVariable int id){
+
+        return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
+    }
+
+
+
+    /*根据图片名字取到对应的图片 暂时不用*/
+    @GetMapping("/getImage")
+    public ResponseEntity<Object> getImage(@RequestParam("imageName") String imageName, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String userName = (String) session.getAttribute("userName");
+        String type = imageName.substring(imageName.lastIndexOf(".") + 1);
+        System.out.println(type);
+
+        String path = FILE_DISK_LOCATION + userName + File.separator + imageName;
+        System.out.println(path);
+        File file = new File(path);
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            return new ResponseEntity<>(ResultData.fail(201, "No such file"), HttpStatus.CREATED);
+        }
+
+        byte[] bytesByStream = ImageUtil.getBytesByStream(inputStream);
+
+        final HttpHeaders headers = new HttpHeaders();
+        if (type.equalsIgnoreCase("jpg")) {
+            headers.setContentType(MediaType.IMAGE_JPEG);
+        } else if (type.equalsIgnoreCase("png")) {
+            headers.setContentType(MediaType.IMAGE_PNG);
+        } else if (type.equalsIgnoreCase("gif")) {
+            headers.setContentType(MediaType.IMAGE_GIF);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "Image invalid"),HttpStatus.CREATED);
+        }
+
+        return new ResponseEntity<>(bytesByStream, headers, HttpStatus.OK);
+
+    }
+
+
+}
