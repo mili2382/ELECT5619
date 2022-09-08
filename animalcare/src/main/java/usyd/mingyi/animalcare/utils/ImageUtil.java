@@ -8,29 +8,51 @@ public class ImageUtil {
 
     // 对字节数组字符串进行Base64解码并生成图片
     //imgFilePath 待保存的本地路径
-    public static void generateImage(String base64Str, String imgFilePath) throws IOException {
-        if (base64Str == null) // 图像数据为空
+    /*** 将base64字符串，生成文件 */
+    public static void convertBase64ToFile(String fileBase64String, String filePath, String fileName) {
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        File file = null;
+        try {
+            File dir = new File(filePath);
+            //判断文件目录是否存在
+            if (!dir.exists()) {
+                System.out.println("创建成功");
+                dir.mkdirs();
+            }
+            byte[] bfile = Base64.decodeBase64(fileBase64String);
+            file = new File(filePath + File.separator + fileName);
+            fos = new FileOutputStream(file);
+            bos = new BufferedOutputStream(fos);
+            bos.write(bfile);
             return;
-
-            // Base64解码
-            byte[] bytes = Base64.decodeBase64(base64Str);
-            for (int i = 0; i < bytes.length; ++i) {
-                if (bytes[i] < 0) {// 调整异常数据
-                    bytes[i] += 256;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
             }
-            // 生成jpeg图片
-            OutputStream out = new FileOutputStream(imgFilePath);
-            out.write(bytes);
-            out.flush();
-            out.close();
-
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return;
     }
+
 
     public static boolean checkImage(String base64Data){
         String dataPrix = ""; //base64格式前头
         String data = "";//实体部分数据
         if(base64Data==null||"".equals(base64Data)){
+
             return false;
         }else {
             String [] d = base64Data.split("base64,");//将字符串分成数组
@@ -38,6 +60,7 @@ public class ImageUtil {
                 dataPrix = d[0];
                 data = d[1];
             }else {
+
                 return false;
 
             }
@@ -56,6 +79,7 @@ public class ImageUtil {
             //data:image/png;base64,base64编码的png图片数据
             suffix = ".png";
         }else {
+
             return false;
         }
         return true;
@@ -98,6 +122,26 @@ public class ImageUtil {
         }
         return suffix;
     }
+
+
+
+    public static byte[]  getBytesByStream(InputStream inputStream){
+        byte[] bytes = new byte[1024];
+
+        int b;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            while((b = inputStream.read(bytes)) != -1){
+
+                byteArrayOutputStream.write(bytes,0,b);
+            }
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
 

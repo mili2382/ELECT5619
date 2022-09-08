@@ -14,7 +14,7 @@
     <resultMap id="userInfo" type="User">
         <result property="id" column="id"/>
         <result property="userName" column="username"/>
-        <result property="password" column="password"/>
+   <!--     <result property="password" column="password"/>-->
         <result property="email" column="email"/>
         <result property="uuid" column="uuid"/>
         <result property="userImageAddress" column="user_image_address"/>

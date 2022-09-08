@@ -2,13 +2,17 @@ package usyd.mingyi.animalcare.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.util.ClassUtils;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
+import usyd.mingyi.animalcare.service.PostService;
 import usyd.mingyi.animalcare.service.UserService;
 import usyd.mingyi.animalcare.utils.ImageUtil;
 import usyd.mingyi.animalcare.utils.JasyptEncryptorUtils;
@@ -17,26 +21,30 @@ import usyd.mingyi.animalcare.utils.Verification;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 
-@RestController
+@Controller
 @CrossOrigin
 public class LoginController {
 
     @Autowired
     UserService userService;
 
+    @Autowired
+    PostService postService;
+
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private JavaMailSender mailSender;
 
+    public final static String FILE_DISK_LOCATION = "D:/userdata/";
+
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
+    @ResponseBody
     public ResponseEntity<Object> login(@RequestBody User userInfo, HttpServletRequest request) {
 
 
@@ -74,6 +82,7 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
+    @ResponseBody
     public ResponseEntity<Object> signup(@RequestBody User userInfo) {
 
         userInfo.setPassword(JasyptEncryptorUtils.encode(userInfo.getPassword()));
@@ -90,6 +99,7 @@ public class LoginController {
     }
 
     @GetMapping("/username")
+    @ResponseBody
     public ResponseEntity<Object> usernameCheck(@RequestBody Map map) {
         String userName = (String) map.get("userName");
         User user = userService.queryUserByUsername(userName);
@@ -101,6 +111,7 @@ public class LoginController {
     }
 
     @PostMapping("/email")
+    @ResponseBody
     public ResponseEntity<Object> sendEmailByUsername(@RequestBody Map map) {
         String email = (String) map.get("email");
         String userName = (String) map.get("userName");
@@ -117,6 +128,7 @@ public class LoginController {
     }
 
     @PostMapping("/validate")
+    @ResponseBody
     public ResponseEntity<Object> validateCode(@RequestBody Map map) {
         String code = (String) map.get("code");
         String userName = (String) map.get("userName");
@@ -132,6 +144,7 @@ public class LoginController {
 
 
     @PostMapping("/edit")
+    @ResponseBody
     public ResponseEntity<Object> updateUserInfo(@RequestBody User userInfo) {
 
         int i = userService.updateUser(userInfo);
@@ -145,60 +158,10 @@ public class LoginController {
 
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<Object> upLoadFile(@RequestBody Map map,HttpServletRequest request) {
 
-        ArrayList<String> imageList =  (ArrayList<String>) map.get("base64Data");
-        String base64Data = imageList.get(0);
-
-        HttpSession session = request.getSession();
-        String userName = (String) session.getAttribute("userName");
-
-        String data = "";//实体部分数
-        String suffix = "";//图片后缀，用以识别哪种格式数据
-
-        if(ImageUtil.checkImage(base64Data)){
-            suffix=ImageUtil.getSuffix(base64Data);
-            data=ImageUtil.getData(base64Data);
-        }else {
-            return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
-        }
-
-        String tempFileName = UUID.randomUUID().toString() + suffix;
-        String path = "/Users/richard/Doc/images/"+userName+"/"+tempFileName;
-
-        try {
-            ImageUtil.generateImage(data,path);
-        } catch (IOException e) {
-            return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
-
-        }
-        return new ResponseEntity<>(ResultData.success("Success"), HttpStatus.OK);
-
-    }
-
-
-/*        @PostMapping("/upload")
-    public ResultData<Integer> upLoadFile(@RequestParam("file") MultipartFile file) {
-
-        String username = "/741917776";//假设当前用户为 741917776这个用户
-        String path = "/userdata"+username; //windows系统下不允许存此路径会报错 这样设置是为了将docker中数据挂载在外面Linux中的磁盘上
-        String access = null;
-        try {
-            access=FileStorage.SaveFile(file,path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            ResponseEntity.status(400); //也可以用 HttpStatus.BAD_REQUEST常量 方便后期维护 我就偷懒了 兄弟们待会写的时候别偷懒
-            return ResultData.fail(400,"Fail to upload");
-
-        }
-
-       //将要存的文件名存到对应文件夹中
-        System.out.println("This is image path: "+path);
-        return ResultData.success(1);
-    }*/
 
     @GetMapping("/get-pet-list")
+    @ResponseBody
     public ResultData<List<Integer>> getPetList() throws IOException {
 //        TODO: get friends from database
         System.out.println("getting pet list");
@@ -208,16 +171,106 @@ public class LoginController {
         }
         return ResultData.success(friends);
     }
-        
-    @GetMapping("/download")
-    public ResultData<byte[]> readFile(@RequestBody Map map) throws IOException {
-        String username = "/741917776";//假设当前用户为 741917776这个用户
-        String fileName = (String) map.get("fileName");
-        String path = ClassUtils.getDefaultClassLoader().getResource("public").getPath() + username + "/" + fileName;
-        File file = new File(path);
-        FileInputStream inputStream = new FileInputStream(file);
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes, 0, inputStream.available());
-        return ResultData.success(bytes);
+
+
+    @PostMapping("/upload")
+    @ResponseBody
+    public ResponseEntity<Object> upLoadPost(@RequestBody Map map, HttpServletRequest request) {
+
+        String data = "";//实体部分数
+        String suffix = "";//图片后缀，用以识别哪种格式数据
+
+        ArrayList<String> list = (ArrayList<String>)map.get("base64Data");
+
+
+
+        HttpSession session = request.getSession();
+
+        String userName = (String) session.getAttribute("userName");
+        int id = (int) session.getAttribute("id");
+
+        Post post = new Post();
+        post.setUserId(id);
+        post.setLove(0);
+        post.setPosTime(System.currentTimeMillis());
+        post.setPostContent("Test post");
+        if( postService.addPost(post)!=1){
+            return new ResponseEntity<>(ResultData.fail(204, "Content invalid"), HttpStatus.NO_CONTENT);
+        }
+        Integer postId = post.getPostId();
+
+        for (String base64Data : list) {
+            if(ImageUtil.checkImage(base64Data)){
+                suffix=ImageUtil.getSuffix(base64Data);
+                data=ImageUtil.getData(base64Data);
+            }else {
+                return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
+            }
+
+
+                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+
+
+                String path = FILE_DISK_LOCATION+userName; //文件路径
+                System.out.println(path);
+                try {
+                    ImageUtil.convertBase64ToFile(data,path,tempFileName);
+                    postService.addImage(postId,tempFileName);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return new ResponseEntity<>(ResultData.fail(204, "File invalid"), HttpStatus.NO_CONTENT);
+
+                }
+            }
+
+            return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
+
+        }
+
+        @GetMapping("/getPosts")
+        @ResponseBody
+        public ResponseEntity<Object> getPosts() {
+
+            List<Post> allPosts = postService.getAllPosts();
+
+            return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
+        }
+
+
+        @GetMapping("/getImage")
+        public ResponseEntity<Object> getImage(@RequestParam("imageName") String imageName,HttpServletRequest request)  {
+            HttpSession session = request.getSession();
+            String userName = (String) session.getAttribute("userName");
+            String type = imageName.substring(imageName.lastIndexOf(".")+1);
+            System.out.println(type);
+
+            String path = FILE_DISK_LOCATION+userName+ File.separator+imageName;
+            System.out.println(path);
+            File file = new File(path);
+            InputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                return new ResponseEntity<>(ResultData.fail(204, "No such file"), HttpStatus.NO_CONTENT);
+            }
+
+            byte[] bytesByStream = ImageUtil.getBytesByStream(inputStream);
+
+            final HttpHeaders headers = new HttpHeaders();
+            if(type.equalsIgnoreCase("jpg")){
+                headers.setContentType(MediaType.IMAGE_JPEG);
+            }else if(type.equalsIgnoreCase("png")){
+                headers.setContentType(MediaType.IMAGE_PNG);
+            }else if(type.equalsIgnoreCase("gif")){
+                headers.setContentType(MediaType.IMAGE_GIF);
+            }else {
+                return new ResponseEntity<>(ResultData.fail(204, "Image invalid"), HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(bytesByStream,headers, HttpStatus.OK);
+
+        }
+
+
     }
-}

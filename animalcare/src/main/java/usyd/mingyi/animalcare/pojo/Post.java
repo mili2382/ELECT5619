@@ -12,7 +12,7 @@ import java.util.List;
 public class Post {
     private Integer postId;
     private Integer userId;
-    private Boolean like;
+    private Integer love;
     private String postContent;
     private String tag;
     private String topic;
