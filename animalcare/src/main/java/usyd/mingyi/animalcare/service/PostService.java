@@ -8,4 +8,5 @@ public interface PostService {
     int addPost(Post post);
     int addImage(int imagePostId,String imageUrl);
     List<Post> getAllPosts();
+    Post queryPostById(int postId);
 }

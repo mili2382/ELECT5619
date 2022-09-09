@@ -17,6 +17,13 @@
         left join user As u on po.post_user_id=u.id
         order by po.post_id DESC limit 10
     </select>
+
+    <select id="queryPostById" resultMap="postInfo">
+        select * from post AS po left join image AS i on po.post_id=i.image_post_id
+                                 left join user As u on po.post_user_id=u.id
+        where po.post_id=#{postId}
+    </select>
+
     <resultMap id="postInfo" type="Post">
         <result property="postId" column="post_id"/>
         <result property="userId" column="post_user_id"/>
@@ -29,7 +36,7 @@
         <collection property="imageUrlList" ofType="String">
             <result column="image_url"/>
         </collection>
-
     </resultMap>
+
 
 </mapper>

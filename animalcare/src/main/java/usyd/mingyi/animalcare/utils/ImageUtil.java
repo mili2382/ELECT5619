@@ -66,7 +66,7 @@ public class ImageUtil {
             in.read(data);
             in.close();
         } catch (IOException e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
 
 
@@ -181,6 +181,37 @@ public class ImageUtil {
 
         }
         return allPosts;
+    }
+
+    public static Post replaceUrl(Post post,String path){
+
+
+
+            List<String> imageUrlList = post.getImageUrlList();
+
+            String userAvatar = post.getUserAvatar();
+
+            for (int j = 0; j < imageUrlList.size(); j++) {
+
+                String fileName = imageUrlList.get(j);
+
+                imageUrlList.set(j,ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+            }
+
+            post.setImageUrlList(imageUrlList);
+
+            if(userAvatar.equals("default.jpg")){
+                //表明现在用户还是用的默认头像
+                //获取到上级路径
+                String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+                //System.out.println(rootPath);
+                post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(rootPath+userAvatar));
+            }else {
+                //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+                post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(path+File.separator+userAvatar));
+            }
+
+        return post;
     }
 
     /* 流处理*/

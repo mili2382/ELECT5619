@@ -171,7 +171,7 @@ public class LoginController {
     }
 
 
-    @PostMapping("/upload")
+    @PostMapping("/post/newPost")
     @ResponseBody
     public ResponseEntity<Object> upLoadPost(@RequestBody Map map, HttpServletRequest request) {
 
@@ -179,6 +179,8 @@ public class LoginController {
         String suffix = "";//图片后缀，用以识别哪种格式数据
 
         ArrayList<String> list = (ArrayList<String>) map.get("base64Data");
+        String postTopic = (String) map.get("postTopic");
+        String postContent = (String) map.get("postContent");
 
         HttpSession session = request.getSession();
 
@@ -189,7 +191,8 @@ public class LoginController {
         post.setUserId(id);
         post.setLove(0);
         post.setPosTime(System.currentTimeMillis());
-        post.setPostContent("Test post");
+        post.setPostContent(postContent);
+        post.setTopic(postTopic);
         if (postService.addPost(post) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Content invalid"), HttpStatus.CREATED);
         }
@@ -235,12 +238,18 @@ public class LoginController {
 
 
     //采用Restful风格进行一次传参
-
-    @GetMapping("/getPost/{id}")
+    @GetMapping("/getPost/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> getPosts(@PathVariable int id){
-
-        return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
+    public ResponseEntity<Object> getPosts(@PathVariable int postId,HttpServletRequest request){
+        HttpSession session = request.getSession();
+        String userName = (String) session.getAttribute("userName");
+        Post post = postService.queryPostById(postId);
+        if(post!=null){
+            post = ImageUtil.replaceUrl(postService.queryPostById(postId), FILE_DISK_LOCATION + userName);
+            return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
+        }
     }
 
 

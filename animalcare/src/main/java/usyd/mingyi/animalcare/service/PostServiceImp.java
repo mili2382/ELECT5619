@@ -26,4 +26,11 @@ public class PostServiceImp implements PostService{
     public List<Post> getAllPosts() {
         return postMapper.getAllPosts();
     }
+
+    @Override
+    public Post queryPostById(int postId) {
+        return postMapper.queryPostById(postId);
+    }
+
+
 }
