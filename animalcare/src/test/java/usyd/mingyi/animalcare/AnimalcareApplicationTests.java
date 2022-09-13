@@ -1,18 +1,22 @@
 package usyd.mingyi.animalcare;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import usyd.mingyi.animalcare.utils.ImageUtil;
+import org.springframework.data.redis.core.RedisTemplate;
+
 
 @SpringBootTest
 class AnimalcareApplicationTests {
 
-
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Test
     public void test(){
-        System.out.println(ImageUtil.ImageToBase64ByLocal("D:/userdata/741917776/9afc1ca1-334d-4533-af54-e77ed9224d70.jpg"));
-
+      redisTemplate.opsForValue().set("111","11111");
+        Object o = redisTemplate.opsForValue().get("111");
+        System.out.println(o);
     }
 
 }

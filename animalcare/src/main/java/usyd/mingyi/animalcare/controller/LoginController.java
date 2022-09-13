@@ -2,6 +2,7 @@ package usyd.mingyi.animalcare.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Controller
@@ -38,6 +40,9 @@ public class LoginController {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     public final static String FILE_DISK_LOCATION = "D:/userdata/";
 
@@ -70,6 +75,7 @@ public class LoginController {
             HttpSession session = request.getSession();
             session.setAttribute("id", user.getId());
             session.setAttribute("userName", user.getUserName());
+
 
             return new ResponseEntity<>(ResultData.success(user), HttpStatus.OK);
 
