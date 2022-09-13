@@ -223,7 +223,7 @@ public class LoginController {
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                postService.addImage(postId, tempFileName);
+                postService.addImage(postId, userName+tempFileName);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -241,7 +241,7 @@ public class LoginController {
     public ResponseEntity<Object> getPosts(HttpServletRequest request) {
         HttpSession session = request.getSession();
         String userName = (String) session.getAttribute("userName");
-        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(), FILE_DISK_LOCATION + userName);
+        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(), FILE_DISK_LOCATION );
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
 
@@ -249,14 +249,14 @@ public class LoginController {
     //采用Restful风格进行一次传参
     @GetMapping("/getPost/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> getPosts(@PathVariable int postId,HttpServletRequest request){
+    public ResponseEntity<Object> getPost(@PathVariable int postId,HttpServletRequest request){
 
 
         HttpSession session = request.getSession();
         String userName = (String) session.getAttribute("userName");
         Post post = postService.queryPostById(postId);
         if(post!=null){
-            post = ImageUtil.replaceUrl(postService.queryPostById(postId), FILE_DISK_LOCATION + userName);
+            post = ImageUtil.replaceUrl(postService.queryPostById(postId), FILE_DISK_LOCATION );
             return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
         }else {
             return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
