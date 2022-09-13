@@ -19,7 +19,7 @@ spring:
           starttls:
             enable: true
   redis:
-    host: 192.168.40.100
+    host: 35.189.27.6
     port: 6381
     database: 0
     timeout: 1800000

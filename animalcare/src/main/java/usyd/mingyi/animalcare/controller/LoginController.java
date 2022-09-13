@@ -76,7 +76,10 @@ public class LoginController {
             session.setAttribute("id", user.getId());
             session.setAttribute("userName", user.getUserName());
 
-
+            redisTemplate.opsForValue().set("user",user,300,TimeUnit.SECONDS);
+            if(redisTemplate.hasKey("user")){
+                System.out.println(redisTemplate.opsForValue().get("user"));
+            }
             return new ResponseEntity<>(ResultData.success(user), HttpStatus.OK);
 
         } else {
@@ -247,6 +250,8 @@ public class LoginController {
     @GetMapping("/getPost/{postId}")
     @ResponseBody
     public ResponseEntity<Object> getPosts(@PathVariable int postId,HttpServletRequest request){
+
+
         HttpSession session = request.getSession();
         String userName = (String) session.getAttribute("userName");
         Post post = postService.queryPostById(postId);

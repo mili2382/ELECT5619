@@ -13,14 +13,14 @@ public interface FunctionOne {
      * 从数据库返回至少8个Post的集合
      * 写对应算法 根据用户的标签过滤数据
      */
-    ResultData<List<Post>> queryAllPost();
+    ResultData<List<Post>> queryAllPost();//已经实现
 
     /**
      * 用户发布一个post 将对应post的数据存在数据库
      * 需要把用户上传的jpg图片 保存到本地文件 已经提供工具类 详见 utils/FileStorage 也可以自己写
      * 传入的参数是一个文件和 post类的字段 可以用post类接收 成功返回true 失败 返回false
      */
-    ResultData<Boolean> post(MultipartFile file, Post post);
+    ResultData<Boolean> post(MultipartFile file, Post post);//已经实现
 
     /**
      * 根据用户名返回另外一个用户的信息 返回类型为User
