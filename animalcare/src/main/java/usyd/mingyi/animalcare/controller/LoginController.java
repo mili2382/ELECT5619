@@ -43,7 +43,7 @@ public class LoginController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public final static String FILE_DISK_LOCATION = "D:/userdata/";
+    public final static String FILE_DISK_LOCATION = "userdata/";
 
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
@@ -158,11 +158,23 @@ public class LoginController {
     }
 
 
-    @GetMapping("/get-pet-list")
+    @GetMapping("/getPetList")
     @ResponseBody
-    public ResultData<List<Integer>> getPetList() throws IOException {
-//        TODO: get friends from database
+    public ResultData<List<Integer>> getPetList() {
+//        TODO: get pet from database
         System.out.println("getting pet list");
+        List<Integer> pets = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            pets.add(i);
+        }
+        return ResultData.success(pets);
+    }
+
+    @GetMapping("/getFriendList")
+    @ResponseBody
+    public ResultData<List<Integer>> getFriendList() {
+//        TODO: get friends from database
+        System.out.println("getting friend list");
         List<Integer> friends = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             friends.add(i);
@@ -170,6 +182,27 @@ public class LoginController {
         return ResultData.success(friends);
     }
 
+    @GetMapping("/getFriendRequestList")
+    @ResponseBody
+    public ResultData<List<Integer>> getFriendRequestList() {
+//        TODO: get friends from database
+        System.out.println("getting friend request list");
+        List<Integer> friends = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            friends.add(i);
+        }
+        return ResultData.success(friends);
+    }
+
+    @PostMapping("/post/newPet")
+    @ResponseBody
+    public ResponseEntity<Object> createNewPet(@RequestBody Map map, HttpServletRequest request) {
+        String petName = (String) map.get("petName");
+        String petDescription = (String) map.get("petDescription");
+        ArrayList<String> list = (ArrayList<String>) map.get("petImageAddress");
+        // TODO: add more logics
+        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
+    }
 
     @PostMapping("/post/newPost")
     @ResponseBody
@@ -230,8 +263,8 @@ public class LoginController {
 
     @GetMapping("/getPosts")
     @ResponseBody
-    public ResponseEntity<Object> getPosts(HttpSession session,@RequestParam("currPage") int currPage, @RequestParam("pageSize")int pageSize) {
-
+    public ResponseEntity<Object> getPosts(HttpSession session,@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
+        System.out.println("get post: " + currPage + pageSize);
         String userName = (String) session.getAttribute("userName");
         List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(currPage,pageSize), FILE_DISK_LOCATION );
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
