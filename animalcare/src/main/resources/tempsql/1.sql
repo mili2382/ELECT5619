@@ -65,12 +65,6 @@ CREATE TABLE `image` (
 
 /*Data for the table `image` */
 
-insert  into `image`(`image_id`,`image_post_id`,`image_url`) values 
-(1,11,'555f293d-f172-4be6-84cd-5cb80804a939.jpg'),
-(2,11,'2855863e-9894-4d35-9b87-d5a599cba2fb.jpg'),
-(3,12,'fea2ca02-2888-4a62-af18-f08b8169c263.jpg'),
-(4,12,'9afc1ca1-334d-4533-af54-e77ed9224d70.jpg');
-
 /*Table structure for table `pet` */
 
 DROP TABLE IF EXISTS `pet`;
@@ -111,10 +105,7 @@ CREATE TABLE `post` (
 /*Data for the table `post` */
 
 insert  into `post`(`post_id`,`post_user_id`,`post_content`,`post_time`,`topic`,`tag`,`love`) values 
-(1,1,'LMY YYDS',NULL,NULL,NULL,0),
-(10,1,'Test post',1662578073392,NULL,NULL,0),
-(11,1,'Test post',1662578129866,NULL,NULL,0),
-(12,1,'Test post',1662613274647,NULL,NULL,0);
+(1,1,'LMY YYDS',NULL,NULL,NULL,0);
 
 /*Table structure for table `user` */
 
@@ -132,12 +123,29 @@ CREATE TABLE `user` (
   `tag` varchar(20) DEFAULT 'Cat',
   `gender` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `user` */
 
 insert  into `user`(`id`,`username`,`password`,`email`,`uuid`,`user_image_address`,`nickname`,`description`,`tag`,`gender`) values 
 (1,'741917776','UBL3wzfOlscd2jT0oxy9QA==',NULL,NULL,'default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1);
+
+/*Table structure for table `userlove` */
+
+DROP TABLE IF EXISTS `userlove`;
+
+CREATE TABLE `userlove` (
+  `user_love_id` int(5) NOT NULL AUTO_INCREMENT,
+  `post_id` int(5) NOT NULL,
+  `user_id` int(5) NOT NULL,
+  PRIMARY KEY (`user_love_id`),
+  KEY `post_id` (`post_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `userlove_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`),
+  CONSTRAINT `userlove_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+/*Data for the table `userlove` */
 
 /*Table structure for table `video` */
 
