@@ -4,10 +4,10 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-/*@MapperScan("usyd.mingyi.animalcare.mapper")
-@ComponentScan({"usyd.mingyi.animalcare.controller","usyd.mingyi.animalcare.service"})*/
+@EnableAsync
 public class AnimalcareApplication {
 
     public static void main(String[] args) {

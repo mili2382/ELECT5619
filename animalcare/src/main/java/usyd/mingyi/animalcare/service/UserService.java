@@ -14,4 +14,6 @@ public interface UserService {
     int updateUser(User user);
 
     User queryUserByUsername(String username);
+
+    public  void sendEmail(String email,String userName);
 }

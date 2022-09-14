@@ -48,6 +48,8 @@
         <result property="posTime" column="post_time"/>
         <result property="tag" column="tag"/>
         <result property="userAvatar" column="user_image_address"/>
+        <result property="nickName" column="nickname"/>
+        <result property="userName" column="username"/>
         <collection property="imageUrlList" ofType="String">
             <result column="image_url"/>
         </collection>

@@ -9,6 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import usyd.mingyi.animalcare.pojo.Post;
@@ -36,10 +39,6 @@ public class LoginController {
 
     @Autowired
     PostService postService;
-
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    private JavaMailSender mailSender;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -123,15 +122,7 @@ public class LoginController {
     public ResponseEntity<Object> sendEmailByUsername(@RequestBody Map map) {
         String email = (String) map.get("email");
         String userName = (String) map.get("userName");
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setSubject("Verification Code");
-        int i = new Random().nextInt(1000000);
-        String code = String.format("%06d", i);
-        mailMessage.setText("This is your one time verification code :" + code);
-        mailMessage.setTo(email);
-        mailMessage.setFrom("LMY741917776@gmail.com");
-        mailSender.send(mailMessage);
-        Verification.putCode(userName, code);
+        userService.sendEmail(email,userName);
         return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
     }
 
@@ -317,5 +308,9 @@ public class LoginController {
         postService.loveMinus(postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
+
+
+
+
 
 }

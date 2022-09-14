@@ -24,6 +24,8 @@ public class Post implements Serializable {
     private String userAvatar;
     private boolean loved;
     private Integer totalPosts;
+    private String nickName;
+    private String userName;
 
 
 }
