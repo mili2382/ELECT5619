@@ -4,19 +4,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import usyd.mingyi.animalcare.service.PostService;
 
 
 @SpringBootTest
 class AnimalcareApplicationTests {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    PostService postService;
+
 
     @Test
     public void test(){
-      redisTemplate.opsForValue().set("111","11111");
-        Object o = redisTemplate.opsForValue().get("111");
-        System.out.println(o);
+        boolean b = postService.checkLoved(1, 1);
+        System.out.println(b);
     }
 
 }

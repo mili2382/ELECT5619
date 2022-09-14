@@ -7,6 +7,11 @@ import java.util.List;
 public interface PostService {
     int addPost(Post post);
     int addImage(int imagePostId,String imageUrl);
-    List<Post> getAllPosts();
+    List<Post> getAllPosts(int currPage, int pageSize);
     Post queryPostById(int postId);
+    boolean checkLoved(int userId,int postId);
+    int love(int userId, int postId);
+    int cancelLove(int userId, int postId);
+    int lovePlus(int postId);
+    int loveMinus(int postId);
 }

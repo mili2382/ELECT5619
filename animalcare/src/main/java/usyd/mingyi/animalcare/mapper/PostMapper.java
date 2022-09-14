@@ -1,6 +1,7 @@
 package usyd.mingyi.animalcare.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import usyd.mingyi.animalcare.api.InterfaceTwo;
 import usyd.mingyi.animalcare.pojo.Post;
 
 import java.util.List;
@@ -9,6 +10,11 @@ import java.util.List;
 public interface PostMapper {
     int addPost(Post post);
     int addImage(int imagePostId,String imageUrl);
-    List<Post> getAllPosts();
+    List<Post> getAllPosts(int currPage, int pageSize);
     Post queryPostById(int postId);
+    boolean checkLoved(int userId,int postId);
+    int love(int userId, int postId);
+    int cancelLove(int userId, int postId);
+    int lovePlus(int postId);
+    int loveMinus(int postId);
 }

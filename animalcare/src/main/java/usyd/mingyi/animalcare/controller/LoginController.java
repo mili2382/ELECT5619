@@ -238,10 +238,10 @@ public class LoginController {
 
     @GetMapping("/getPosts")
     @ResponseBody
-    public ResponseEntity<Object> getPosts(HttpServletRequest request) {
-        HttpSession session = request.getSession();
+    public ResponseEntity<Object> getPosts(HttpSession session,@RequestParam("currPage") int currPage, @RequestParam("pageSize")int pageSize) {
+
         String userName = (String) session.getAttribute("userName");
-        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(), FILE_DISK_LOCATION );
+        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(currPage,pageSize), FILE_DISK_LOCATION );
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
 
@@ -253,10 +253,12 @@ public class LoginController {
 
 
         HttpSession session = request.getSession();
-        String userName = (String) session.getAttribute("userName");
+        int id = (int) session.getAttribute("id");
         Post post = postService.queryPostById(postId);
         if(post!=null){
             post = ImageUtil.replaceUrl(postService.queryPostById(postId), FILE_DISK_LOCATION );
+            boolean b = postService.checkLoved(id, postId);
+            post.setLoved(b);
             return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
         }else {
             return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
@@ -300,5 +302,19 @@ public class LoginController {
 
     }
 
+    @GetMapping("/love/{postId}")
+    public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        postService.love(id, postId);
+        postService.lovePlus(postId);
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
+    @DeleteMapping("/love/{postId}")
+    public ResponseEntity<Object> cancelLove(@PathVariable("postId") int postId, HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        postService.cancelLove(id, postId);
+        postService.loveMinus(postId);
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
 
 }

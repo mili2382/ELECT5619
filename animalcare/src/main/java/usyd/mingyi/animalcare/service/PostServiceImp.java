@@ -23,13 +23,38 @@ public class PostServiceImp implements PostService{
     }
 
     @Override
-    public List<Post> getAllPosts() {
-        return postMapper.getAllPosts();
+    public List<Post> getAllPosts(int currPage, int pageSize) {
+        return postMapper.getAllPosts(currPage,pageSize);
     }
 
     @Override
     public Post queryPostById(int postId) {
         return postMapper.queryPostById(postId);
+    }
+
+    @Override
+    public boolean checkLoved(int userId, int postId) {
+        return postMapper.checkLoved(userId,postId);
+    }
+
+    @Override
+    public int love(int userId, int postId) {
+        return postMapper.love(userId,postId);
+    }
+
+    @Override
+    public int cancelLove(int userId, int postId) {
+        return postMapper.cancelLove(userId,postId);
+    }
+
+    @Override
+    public int lovePlus(int postId) {
+        return postMapper.lovePlus(postId);
+    }
+
+    @Override
+    public int loveMinus(int postId) {
+        return postMapper.loveMinus(postId);
     }
 
 

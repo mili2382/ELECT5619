@@ -22,5 +22,8 @@ public class Post implements Serializable {
     private List<String> videoUrlList;
     private List<String> imageUrlList;
     private String userAvatar;
+    private boolean loved;
+    private Integer totalPosts;
+
 
 }
