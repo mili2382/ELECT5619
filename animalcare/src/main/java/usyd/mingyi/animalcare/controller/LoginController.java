@@ -223,7 +223,7 @@ public class LoginController {
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                postService.addImage(postId, userName+tempFileName);
+                postService.addImage(postId, userName+"/"+tempFileName);
 
             } catch (Exception e) {
                 e.printStackTrace();
