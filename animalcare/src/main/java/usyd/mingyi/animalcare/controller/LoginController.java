@@ -190,7 +190,7 @@ public class LoginController {
         ArrayList<String> list = (ArrayList<String>) map.get("base64Data");
         String postTopic = (String) map.get("postTopic");
         String postContent = (String) map.get("postContent");
-
+        String postTag = (String) map.get("postTag");
         HttpSession session = request.getSession();
 
         String userName = (String) session.getAttribute("userName");
@@ -202,6 +202,7 @@ public class LoginController {
         post.setPosTime(System.currentTimeMillis());
         post.setPostContent(postContent);
         post.setTopic(postTopic);
+        post.setTag(postTag);
         if (postService.addPost(post) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Content invalid"), HttpStatus.CREATED);
         }
