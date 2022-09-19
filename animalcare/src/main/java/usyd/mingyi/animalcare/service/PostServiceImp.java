@@ -3,6 +3,7 @@ package usyd.mingyi.animalcare.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import usyd.mingyi.animalcare.mapper.PostMapper;
+import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Post;
 
 import java.util.List;
@@ -56,6 +57,17 @@ public class PostServiceImp implements PostService{
     public int loveMinus(int postId) {
         return postMapper.loveMinus(postId);
     }
+
+    @Override
+    public int deletePost(int postId) {
+        return postMapper.deletePost(postId);
+    }
+
+    @Override
+    public int addComment(int postId) {
+        return postMapper.addComment(postId);
+    }
+
 
 
 }

@@ -3,10 +3,7 @@ package usyd.mingyi.animalcare.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -14,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.service.PostService;
@@ -276,7 +274,6 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> getPost(@PathVariable int postId,HttpServletRequest request){
 
-
         HttpSession session = request.getSession();
         int id = (int) session.getAttribute("id");
         Post post = postService.queryPostById(postId);
@@ -342,7 +339,47 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Object> deletePost(@PathVariable("postId") int postId, HttpSession session) {
 
+        System.out.println("Delete post" + postId);
+        //session
+        postService.deletePost(postId);
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
+
+    @PostMapping
+    @ResponseBody
+    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId, HttpSession session) {
+        System.out.println("Add comment to" + postId);
+        //session
+        postService.addComment(postId);
+        return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
+    }
+
+    @GetMapping
+    @ResponseBody
+    public ResponseEntity<Object> getPostsByUserId(int userId, HttpServletRequest request) {
+        System.out.println("Getting posts by" + userId);
+        //session
+        List<Post> PostsByUserId = userService.queryUserById(userId).getPostList();
+        if(userService.queryUserById(userId) == null) {
+            return new ResponseEntity<>(ResultData.fail(201,"No such user"), HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
+    }
+
+//    @GetMapping
+//    @ResponseBody
+//    public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpRequest request) {
+//        System.out.println("Getting comments by" + postId);
+//        //session
+//        if(postService.queryPostById(postId) == null) {
+//            return new ResponseEntity<>(ResultData.fail(201,"No such post"), HttpStatus.CREATED);
+//        }
+//        List<Comment> CommentsByPostId = postService.queryPostById(postId).getCommentList();
+//        return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+//    }
 
 
 

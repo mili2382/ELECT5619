@@ -6,9 +6,11 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import usyd.mingyi.animalcare.mapper.UserMapper;
+import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.utils.Verification;
 
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -57,6 +59,11 @@ public class UserServiceImp implements  UserService{
         mailMessage.setFrom("LMY741917776@gmail.com");
         mailSender.send(mailMessage);
         Verification.putCode(userName, code);
+    }
+
+    @Override
+    public User queryUserById(int userId) {
+        return userMapper.queryUserById(userId);
     }
 
 }

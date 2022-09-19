@@ -1,5 +1,6 @@
 package usyd.mingyi.animalcare.service;
 
+import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Post;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface PostService {
     int cancelLove(int userId, int postId);
     int lovePlus(int postId);
     int loveMinus(int postId);
+    int deletePost(int postId);
+    int addComment(int postId);
+
 }

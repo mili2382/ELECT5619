@@ -1,7 +1,10 @@
 package usyd.mingyi.animalcare.service;
 
 import org.springframework.stereotype.Service;
+import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
+
+import java.util.List;
 
 
 public interface UserService {
@@ -16,4 +19,6 @@ public interface UserService {
     User queryUserByUsername(String username);
 
     public  void sendEmail(String email,String userName);
+
+    User queryUserById(int userId);
 }
