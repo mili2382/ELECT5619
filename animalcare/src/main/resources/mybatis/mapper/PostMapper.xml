@@ -76,14 +76,17 @@
         delete from userlove where post_id=#{postId} and user_id=#{userId}
     </delete>
 
-    <delete id="deletePost" parameterType="int">
+    <delete id="deletePost">
         delete from post where post_id = #{postId}
     </delete>
 
-    <insert id="addComment" parameterType="int">
+    <insert id="addComment">
         insert into comment(comment_id, comment_post_id, comment_time, comment_content)
         values(#{id},#{postId},#{commentTime},#{commentContent})
     </insert>
 
+    <select id="getPostsByUserId" parameterType="User">
+        select*from post where post_user_id = #{userId}
+    </select>
 
 </mapper>
