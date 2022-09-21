@@ -53,7 +53,7 @@
     </select>
 
     <select id="queryUserById" resultType="User">
-        select * from user where userId = #{id}
+        select * from user where id = #{id}
     </select>
 
 </mapper>
