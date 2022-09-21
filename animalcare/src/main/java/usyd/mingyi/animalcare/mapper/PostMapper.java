@@ -20,4 +20,5 @@ public interface PostMapper {
     int loveMinus(int postId);
     int deletePost(int postId);
     int addComment(int postId);
+    List<Post> getPostsByUserId(int userId);
 }
