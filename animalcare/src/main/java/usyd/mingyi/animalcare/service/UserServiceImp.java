@@ -66,4 +66,9 @@ public class UserServiceImp implements  UserService{
         return userMapper.queryUserById(userId);
     }
 
+//    @Override
+//    public List<User> queryFriendListById(int userId) {
+//        return userMapper.queryFriendListById(userId);
+//    }
+
 }

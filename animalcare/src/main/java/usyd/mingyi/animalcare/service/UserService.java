@@ -21,4 +21,6 @@ public interface UserService {
     public  void sendEmail(String email,String userName);
 
     User queryUserById(int userId);
+
+//    List<User> queryFriendListById(int userId);
 }

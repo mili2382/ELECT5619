@@ -26,6 +26,4 @@ public class User implements Serializable {
     private List<Post> postList;
     private List<Pet> petList;
     private List<User> friendRecordList;
-
-
 }

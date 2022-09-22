@@ -158,38 +158,66 @@ public class LoginController {
 
     @GetMapping("/getPetList")
     @ResponseBody
-    public ResultData<List<Integer>> getPetList() {
+    public ResultData<List<Map<String, String>>> getPetList() {
 //        TODO: get pet from database
         System.out.println("getting pet list");
-        List<Integer> pets = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            pets.add(i);
-        }
-        return ResultData.success(pets);
+        List<Map<String, String>> petList = new ArrayList<>();
+        Map<String, String> pet1 = new HashMap<>();
+        pet1.put("name", "abc");
+        pet1.put("category", "cat");
+        pet1.put("petAvatar", "domestic-cat_thumb.webp");
+        pet1.put("petDescription", "haha");
+        petList.add(pet1);
+
+        Map<String, String> pet2 = new HashMap<>();
+        pet2.put("name", "def");
+        pet2.put("category", "dog");
+        pet2.put("petAvatar", "domestic-cat_thumb.webp");
+        pet2.put("petDescription", "hehe");
+        petList.add(pet2);
+        return ResultData.success(petList);
     }
 
     @GetMapping("/getFriendList")
     @ResponseBody
-    public ResultData<List<Integer>> getFriendList() {
-//        TODO: get friends from database
+    public ResultData<List<Map<String, String>>> getFriendList(HttpSession session) {
+        //        TODO: get friends from database
+        String userName = (String) session.getAttribute("userName");
         System.out.println("getting friend list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
+
+        List<Map<String, String>> friendList = new ArrayList<>();
+        Map<String, String> friend1 = new HashMap<>();
+        friend1.put("name", "abc");
+        friend1.put("description", "111");
+        friend1.put("userAvatar", "222");
+        friendList.add(friend1);
+
+        Map<String, String> friend2 = new HashMap<>();
+        friend2.put("name", "def");
+        friend2.put("description", "333");
+        friend2.put("userAvatar", "444");
+        friendList.add(friend2);
+        return ResultData.success(friendList);
     }
 
     @GetMapping("/getFriendRequestList")
     @ResponseBody
-    public ResultData<List<Integer>> getFriendRequestList() {
-//        TODO: get friends from database
+    public ResultData<List<Map<String, String>>> getFriendRequestList() {
+//        TODO: get friends request from database
         System.out.println("getting friend request list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
+        List<Map<String, String>> friendRequestList = new ArrayList<>();
+        Map<String, String> request1 = new HashMap<>();
+        request1.put("userName", "abc");
+        request1.put("requestText", "hello");
+        request1.put("userAvatar", "222");
+        friendRequestList.add(request1);
+
+        Map<String, String> request2 = new HashMap<>();
+        request2.put("userName", "def");
+        request2.put("requestText", "hello");
+        request2.put("userAvatar", "444");
+        friendRequestList.add(request2);
+        return ResultData.success(friendRequestList);
     }
 
     @PostMapping("/post/newPet")

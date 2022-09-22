@@ -56,4 +56,12 @@
         select * from user where userId = #{id}
     </select>
 
+<!--    <select id="queryFriendListById" resultMap="friendList">-->
+<!--        select friendRecordList from user where userId = #{id}-->
+<!--    </select>-->
+
+<!--    <resultMap id="friendList" type="User">-->
+<!--        <result property=""-->
+<!--    </resultMap>-->
+
 </mapper>
