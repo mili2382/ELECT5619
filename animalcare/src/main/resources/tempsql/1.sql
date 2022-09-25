@@ -61,9 +61,12 @@ CREATE TABLE `image` (
   PRIMARY KEY (`image_id`),
   KEY `image_post_id` (`image_post_id`),
   CONSTRAINT `image_ibfk_1` FOREIGN KEY (`image_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `image` */
+
+insert  into `image`(`image_id`,`image_post_id`,`image_url`) values 
+(1,1,'741917776/1.jpg');
 
 /*Table structure for table `pet` */
 
@@ -74,16 +77,18 @@ CREATE TABLE `pet` (
   `pet_user_id` int(5) NOT NULL,
   `name` varchar(20) NOT NULL,
   `pet_image_address` varchar(50) DEFAULT NULL,
+  `category` varchar(10) DEFAULT NULL,
+  `age` int(4) DEFAULT NULL,
   PRIMARY KEY (`pet_id`),
   KEY `pet_user_id` (`pet_user_id`),
   CONSTRAINT `pet_ibfk_1` FOREIGN KEY (`pet_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `pet` */
 
-insert  into `pet`(`pet_id`,`pet_user_id`,`name`,`pet_image_address`) values 
-(1,1,'UMI',NULL),
-(2,1,'MIKO',NULL);
+insert  into `pet`(`pet_id`,`pet_user_id`,`name`,`pet_image_address`,`category`,`age`) values 
+(1,1,'UMI','catDefault.jpg','cat',3),
+(2,1,'MIKO','catDefault.jpg','cat',3);
 
 /*Table structure for table `post` */
 
