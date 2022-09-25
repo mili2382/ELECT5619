@@ -509,9 +509,12 @@ public class LoginController {
     public ResponseEntity<Object> getPet(@PathVariable("petId") int petId,HttpSession session) {
         int id = (int) session.getAttribute("id");
         Pet pet = petService.getPet(petId, id);
-        if(pet!=null)
+        if(pet!=null){
         ImageUtil.replacePetUrl(pet,FILE_DISK_LOCATION);
         return new ResponseEntity<>(ResultData.success(pet), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"No such pet found"), HttpStatus.CREATED);
+        }
     }
     @DeleteMapping("/pet/{petId}")
     public ResponseEntity<Object> deletePet(@PathVariable("petId") int petId,HttpSession session) {
