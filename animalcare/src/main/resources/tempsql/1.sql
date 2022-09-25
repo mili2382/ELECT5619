@@ -79,6 +79,7 @@ CREATE TABLE `pet` (
   `pet_image_address` varchar(50) DEFAULT NULL,
   `category` varchar(10) DEFAULT NULL,
   `age` int(4) DEFAULT NULL,
+  `pet_description` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`pet_id`),
   KEY `pet_user_id` (`pet_user_id`),
   CONSTRAINT `pet_ibfk_1` FOREIGN KEY (`pet_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
@@ -86,9 +87,28 @@ CREATE TABLE `pet` (
 
 /*Data for the table `pet` */
 
-insert  into `pet`(`pet_id`,`pet_user_id`,`name`,`pet_image_address`,`category`,`age`) values 
-(1,1,'UMI','catDefault.jpg','cat',3),
-(2,1,'MIKO','catDefault.jpg','cat',3);
+insert  into `pet`(`pet_id`,`pet_user_id`,`name`,`pet_image_address`,`category`,`age`,`pet_description`) values 
+(1,1,'UMI','catDefault.jpg','cat',3,NULL),
+(2,1,'MIKO','catDefault.jpg','cat',3,NULL),
+(3,2,'XIXI','dogDefault.jpg','dog',2,NULL);
+
+/*Table structure for table `petimage` */
+
+DROP TABLE IF EXISTS `petimage`;
+
+CREATE TABLE `petimage` (
+  `image_id` int(5) NOT NULL AUTO_INCREMENT,
+  `image_pet_id` int(5) NOT NULL,
+  `image_url` varchar(50) NOT NULL,
+  PRIMARY KEY (`image_id`),
+  KEY `image_pet_id` (`image_pet_id`),
+  CONSTRAINT `petimage_ibfk_1` FOREIGN KEY (`image_pet_id`) REFERENCES `pet` (`pet_id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+/*Data for the table `petimage` */
+
+insert  into `petimage`(`image_id`,`image_pet_id`,`image_url`) values 
+(1,1,'741917776/2.jpg');
 
 /*Table structure for table `post` */
 
@@ -106,12 +126,13 @@ CREATE TABLE `post` (
   KEY `post_user_id` (`post_user_id`),
   FULLTEXT KEY `idx_content` (`post_content`),
   CONSTRAINT `post_ibfk_1` FOREIGN KEY (`post_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `post` */
 
 insert  into `post`(`post_id`,`post_user_id`,`post_content`,`post_time`,`topic`,`tag`,`love`) values 
-(1,1,'LMY YYDS',NULL,NULL,NULL,0);
+(1,1,'LMY YYDS',NULL,NULL,NULL,0),
+(2,1,'NO',NULL,NULL,NULL,0);
 
 /*Table structure for table `user` */
 
@@ -151,7 +172,7 @@ CREATE TABLE `userlove` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `userlove_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
   CONSTRAINT `userlove_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `userlove` */
 
