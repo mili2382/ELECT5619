@@ -1,7 +1,6 @@
 package usyd.mingyi.animalcare.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import usyd.mingyi.animalcare.api.InterfaceTwo;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Post;
 
@@ -20,4 +19,6 @@ public interface PostMapper {
     int loveMinus(int postId);
     int deletePost(int postId);
     int addComment(int postId);
+    List<Post> getPostsByUserId(int userId);
+    List<Comment> getCommentsByPostId(int postId);
 }

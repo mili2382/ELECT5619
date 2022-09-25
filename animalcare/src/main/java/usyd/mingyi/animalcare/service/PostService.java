@@ -17,5 +17,8 @@ public interface PostService {
     int loveMinus(int postId);
     int deletePost(int postId);
     int addComment(int postId);
+    List<Post> getPostByUserId(int userId);
+    List<Comment> getCommentsByPostId(int postId);
+
 
 }

@@ -73,6 +73,14 @@ public class PostServiceImp implements PostService{
         return postMapper.addComment(postId);
     }
 
+    @Override
+    public List<Post> getPostByUserId(int userId) {
+        return postMapper.getPostsByUserId(userId);
+    }
 
+    @Override
+    public List<Comment> getCommentsByPostId(int postId) {
+        return postMapper.getCommentsByPostId(postId);
+    }
 
 }

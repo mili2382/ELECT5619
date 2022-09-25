@@ -2,7 +2,6 @@ package usyd.mingyi.animalcare.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
 
 import java.util.List;
