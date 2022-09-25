@@ -17,6 +17,7 @@ public class Pet implements Serializable {
     private Integer age;
     private String category;
     private String petImageAddress;
+    private String petDescription;
     private List<String> petImageList;
 
 }

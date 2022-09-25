@@ -34,4 +34,9 @@ public class PetServiceImp implements  PetService{
         return petMapper.deletePet(petId,useId);
     }
 
+    @Override
+    public int addImage(int imagePetId, String imageUrl) {
+        return 0;
+    }
+
 }

@@ -11,5 +11,6 @@ public interface PetMapper {
     List<Pet> getPetList(int userId);
     Pet getPet(int petId,int useId);
     int deletePet(int petId,int useId);
+    int addImage(int imagePetId,String imageUrl);
 
 }

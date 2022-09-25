@@ -391,48 +391,70 @@ public class LoginController {
 //    }
 
 
-    @GetMapping("/pet/newPet")
+    @PostMapping("/pet/newPet")
     public ResponseEntity<Object> addPet(@RequestBody Map map,HttpSession session) {
         int id = (int) session.getAttribute("id");
         String userName = (String) session.getAttribute("userName");
         String data = "";//实体部分数
         String suffix = "";//图片后缀，用以识别哪种格式数据
-        String base64Data = (String) map.get("base64Data");
-        String name = (String) map.get("name");
+        String avatarUrl = (String) map.get("avatarUrl");
+        String name = (String) map.get("petName");
         String category = (String) map.get("category");
-        int age = (int) map.get("age");
+        List<String> list = (List<String>) map.get("petImageListArr");
+        String petDescription = (String) map.get("petDescription");
         Pet pet = new Pet();
-        pet.setAge(age);
         pet.setCategory(category);
         pet.setPetName(name);
         pet.setUserId(id);
+        pet.setPetDescription(petDescription);
 
-        if(StringUtil.isNullOrEmpty(base64Data)){
+        if(StringUtil.isNullOrEmpty(avatarUrl)){
             if(category.equals("dog")){
             pet.setPetImageAddress("dogDefault.jpg");
             }else {
                 pet.setPetImageAddress("catDefault.jpg");
             }
-            petService.addPet(pet);
-            return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+
+
         }
-        else if(ImageUtil.checkImage(base64Data)){
-            suffix = ImageUtil.getSuffix(base64Data);
-            data = ImageUtil.getData(base64Data);
+        else if(ImageUtil.checkImage(avatarUrl)){
+            suffix = ImageUtil.getSuffix(avatarUrl);
+            data = ImageUtil.getData(avatarUrl);
+            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+            String path = FILE_DISK_LOCATION + userName; //文件路径
+            try {
+                ImageUtil.convertBase64ToFile(data, path, tempFileName);
+                pet.setPetImageAddress(userName+"/"+tempFileName);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+            }
         }else {
             return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
         }
-        String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
-        String path = FILE_DISK_LOCATION + userName; //文件路径
-        try {
-            ImageUtil.convertBase64ToFile(data, path, tempFileName);
-            pet.setPetImageAddress(userName+"/"+tempFileName);
-            petService.addPet(pet);
+        Integer petId = petService.addPet(pet);
+        for (String base64Data : list) {
+            if (ImageUtil.checkImage(base64Data)) {
+                suffix = ImageUtil.getSuffix(base64Data);
+                data = ImageUtil.getData(base64Data);
+            } else {
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
 
+            String path = FILE_DISK_LOCATION + userName; //文件路径
+
+            try {
+                ImageUtil.convertBase64ToFile(data, path, tempFileName);
+                petService.addImage(petId,userName+"/"+tempFileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+
+            }
         }
 
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
@@ -449,6 +471,7 @@ public class LoginController {
     public ResponseEntity<Object> getPet(@PathVariable("petId") int petId,HttpSession session) {
         int id = (int) session.getAttribute("id");
         Pet pet = petService.getPet(petId, id);
+        if(pet!=null)
         ImageUtil.replacePetUrl(pet,FILE_DISK_LOCATION);
         return new ResponseEntity<>(ResultData.success(pet), HttpStatus.OK);
     }

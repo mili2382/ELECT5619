@@ -1,5 +1,6 @@
 package usyd.mingyi.animalcare.utils;
 
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.codec.binary.Base64;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
@@ -173,7 +174,8 @@ public class ImageUtil {
                 String rootPath = path.substring(0, path.lastIndexOf("/")+1);
                //System.out.println(rootPath);
                 post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(rootPath+userAvatar));
-            }else {
+            }else
+             {
                   //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
                 post.setUserAvatar(ImageUtil.ImageToBase64ByLocal(path+File.separator+userAvatar));
             }
@@ -250,6 +252,16 @@ public class ImageUtil {
                 pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
             }
 
+        List<String> imageUrlList = pet.getPetImageList();
+        if(imageUrlList==null)return;
+        for (int j = 0; j < imageUrlList.size(); j++) {
+
+            fileName = imageUrlList.get(j);
+
+            imageUrlList.set(j,ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+        }
+
+
     }
     public static void replaceUserUrl(User user, String path){
         String userImageAddress = user.getUserImageAddress();
@@ -265,7 +277,16 @@ public class ImageUtil {
         }
 
         List<Post> postList = user.getPostList();
-        postList = replaceUrl(postList, path);
+        for (int i = 0; i < postList.size(); i++) {
+
+            Post post = postList.get(i);
+            List<String> imageUrlList = post.getImageUrlList();
+            for (int j = 0; j < imageUrlList.size(); j++) {
+                String fileName = imageUrlList.get(j);
+
+                imageUrlList.set(j,ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+            }
+        }
         List<Pet> petList = user.getPetList();
         replacePetUrl(petList,path);
 
