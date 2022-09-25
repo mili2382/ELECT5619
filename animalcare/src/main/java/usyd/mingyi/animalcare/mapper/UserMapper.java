@@ -15,4 +15,6 @@ public interface UserMapper {
     int updateUser(User user);
     User queryUserByUsername(String username);
     User queryUserById(int userId);
+    User getProfile(int userId);
+
 }

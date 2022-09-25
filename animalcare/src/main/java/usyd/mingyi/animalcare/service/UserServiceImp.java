@@ -66,4 +66,9 @@ public class UserServiceImp implements  UserService{
         return userMapper.queryUserById(userId);
     }
 
+    @Override
+    public User getProfile(int userId) {
+        return userMapper.getProfile(userId);
+    }
+
 }

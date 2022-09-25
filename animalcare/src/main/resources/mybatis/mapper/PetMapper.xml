@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="usyd.mingyi.animalcare.mapper.PetMapper">
+    <insert id="addPet" parameterType="Pet">
+        insert into pet (pet_user_id,name,pet_image_address,category,age)
+        values (#{userId},#{petName},#{petImageAddress},#{category},#{age})
+    </insert>
+    <select id="getPetList" resultMap="petInfo">
+        select * from pet where pet_user_id=#{userId}
+    </select>
+
+    <select id="getPet" resultMap="petInfo">
+        select * from pet where pet_id=#{petId} and pet_user_id=#{useId}
+    </select>
+
+    <delete id="deletePet">
+        delete from pet where pet_id=#{petId} and pet_user_id=#{useId}
+    </delete>
+
+    <resultMap id="petInfo" type="Pet">
+        <result property="petId" column="pet_id"/>
+        <!--<result property="userId" column="pet_user_id"/>-->
+        <result property="petName" column="name"/>
+        <result property="age" column="age"/>
+        <result property="category" column="category"/>
+        <result property="petImageAddress" column="pet_image_address"/>
+    </resultMap>
+
+</mapper>

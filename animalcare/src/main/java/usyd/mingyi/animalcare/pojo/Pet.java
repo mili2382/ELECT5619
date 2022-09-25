@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,5 +17,6 @@ public class Pet implements Serializable {
     private Integer age;
     private String category;
     private String petImageAddress;
+    private List<String> petImageList;
 
 }

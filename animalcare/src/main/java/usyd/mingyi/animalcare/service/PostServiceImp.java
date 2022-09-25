@@ -2,6 +2,7 @@ package usyd.mingyi.animalcare.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import usyd.mingyi.animalcare.mapper.PostMapper;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Post;
@@ -39,12 +40,16 @@ public class PostServiceImp implements PostService{
     }
 
     @Override
+    @Transactional
     public int love(int userId, int postId) {
+        postMapper.lovePlus(postId);
         return postMapper.love(userId,postId);
     }
 
     @Override
+    @Transactional
     public int cancelLove(int userId, int postId) {
+        postMapper.loveMinus(postId);
         return postMapper.cancelLove(userId,postId);
     }
 
