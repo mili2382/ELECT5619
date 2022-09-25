@@ -1,6 +1,8 @@
 package usyd.mingyi.animalcare.controller;
 
 
+import io.netty.util.internal.StringUtil;
+import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
@@ -10,10 +12,14 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import usyd.mingyi.animalcare.pojo.Comment;
+import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
+import usyd.mingyi.animalcare.service.PetService;
+import usyd.mingyi.animalcare.service.PetServiceImp;
 import usyd.mingyi.animalcare.service.PostService;
 import usyd.mingyi.animalcare.service.UserService;
 import usyd.mingyi.animalcare.utils.ImageUtil;
@@ -39,9 +45,12 @@ public class LoginController {
     PostService postService;
 
     @Autowired
+    PetService petService;
+
+    @Autowired
     private RedisTemplate redisTemplate;
 
-    public final static String FILE_DISK_LOCATION = "userdata/";
+    public final static String FILE_DISK_LOCATION = "D://userdata/";
 
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
@@ -155,7 +164,7 @@ public class LoginController {
 
     }
 
-
+/*
     @GetMapping("/getPetList")
     @ResponseBody
     public ResultData<List<Integer>> getPetList() {
@@ -200,7 +209,7 @@ public class LoginController {
         ArrayList<String> list = (ArrayList<String>) map.get("petImageAddress");
         // TODO: add more logics
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
-    }
+    }*/
 
     @PostMapping("/post/newPost")
     @ResponseBody
@@ -328,14 +337,14 @@ public class LoginController {
     public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
         postService.love(id, postId);
-        postService.lovePlus(postId);
+        //postService.lovePlus(postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
     @DeleteMapping("/love/{postId}")
     public ResponseEntity<Object> cancelLove(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
         postService.cancelLove(id, postId);
-        postService.loveMinus(postId);
+        //postService.loveMinus(postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 
@@ -382,5 +391,73 @@ public class LoginController {
 //    }
 
 
+    @GetMapping("/pet/newPet")
+    public ResponseEntity<Object> addPet(@RequestBody Map map,HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        String userName = (String) session.getAttribute("userName");
+        String data = "";//实体部分数
+        String suffix = "";//图片后缀，用以识别哪种格式数据
+        String base64Data = (String) map.get("base64Data");
+        String name = (String) map.get("name");
+        String category = (String) map.get("category");
+        int age = (int) map.get("age");
+        Pet pet = new Pet();
+        pet.setAge(age);
+        pet.setCategory(category);
+        pet.setPetName(name);
+        pet.setUserId(id);
+
+        if(StringUtil.isNullOrEmpty(base64Data)){
+            if(category.equals("dog")){
+            pet.setPetImageAddress("dogDefault.jpg");
+            }else {
+                pet.setPetImageAddress("catDefault.jpg");
+            }
+            petService.addPet(pet);
+            return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+        }
+        else if(ImageUtil.checkImage(base64Data)){
+            suffix = ImageUtil.getSuffix(base64Data);
+            data = ImageUtil.getData(base64Data);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+        }
+        String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+        String path = FILE_DISK_LOCATION + userName; //文件路径
+        try {
+            ImageUtil.convertBase64ToFile(data, path, tempFileName);
+            pet.setPetImageAddress(userName+"/"+tempFileName);
+            petService.addPet(pet);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+
+        }
+
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
+    @GetMapping("/getPetList")
+    public ResponseEntity<Object> getPetList(HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        List<Pet> petList = petService.getPetList(id);
+        ImageUtil.replacePetUrl(petList,FILE_DISK_LOCATION);
+        return new ResponseEntity<>(ResultData.success(petList), HttpStatus.OK);
+    }
+
+    @GetMapping("/pet/{petId}")
+    public ResponseEntity<Object> getPet(@PathVariable("petId") int petId,HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        Pet pet = petService.getPet(petId, id);
+        ImageUtil.replacePetUrl(pet,FILE_DISK_LOCATION);
+        return new ResponseEntity<>(ResultData.success(pet), HttpStatus.OK);
+    }
+    @DeleteMapping("/pet/{petId}")
+    public ResponseEntity<Object> deletePet(@PathVariable("petId") int petId,HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        int i = petService.deletePet(petId, id);
+        if(i==0) return new ResponseEntity<>(ResultData.fail(201,"Fail to delete for no such pet"), HttpStatus.OK);
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
 
 }

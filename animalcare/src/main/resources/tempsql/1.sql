@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v13.1.1 (64 bit)
-MySQL - 5.7.38 : Database - db01
+MySQL - 5.7.38-log : Database - db01
 *********************************************************************
 */
 
@@ -27,7 +27,7 @@ CREATE TABLE `comment` (
   `comment_content` varchar(100) NOT NULL,
   PRIMARY KEY (`comment_id`),
   KEY `comment_post_id` (`comment_post_id`),
-  CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`comment_post_id`) REFERENCES `post` (`post_id`)
+  CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`comment_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `comment` */
@@ -45,7 +45,7 @@ CREATE TABLE `friendlist` (
   `friend_username` varchar(20) NOT NULL,
   PRIMARY KEY (`list_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `friendlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `friendlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `friendlist` */
@@ -60,8 +60,8 @@ CREATE TABLE `image` (
   `image_url` varchar(50) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `image_post_id` (`image_post_id`),
-  CONSTRAINT `image_ibfk_1` FOREIGN KEY (`image_post_id`) REFERENCES `post` (`post_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+  CONSTRAINT `image_ibfk_1` FOREIGN KEY (`image_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `image` */
 
@@ -76,7 +76,7 @@ CREATE TABLE `pet` (
   `pet_image_address` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`pet_id`),
   KEY `pet_user_id` (`pet_user_id`),
-  CONSTRAINT `pet_ibfk_1` FOREIGN KEY (`pet_user_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `pet_ibfk_1` FOREIGN KEY (`pet_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `pet` */
@@ -99,8 +99,9 @@ CREATE TABLE `post` (
   `love` int(5) DEFAULT '0',
   PRIMARY KEY (`post_id`),
   KEY `post_user_id` (`post_user_id`),
-  CONSTRAINT `post_ibfk_1` FOREIGN KEY (`post_user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+  FULLTEXT KEY `idx_content` (`post_content`),
+  CONSTRAINT `post_ibfk_1` FOREIGN KEY (`post_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `post` */
 
@@ -122,13 +123,15 @@ CREATE TABLE `user` (
   `description` varchar(200) DEFAULT 'this gay is very lazy to write decription',
   `tag` varchar(20) DEFAULT 'Cat',
   `gender` tinyint(1) DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `USERNAME` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `user` */
 
 insert  into `user`(`id`,`username`,`password`,`email`,`uuid`,`user_image_address`,`nickname`,`description`,`tag`,`gender`) values 
-(1,'741917776','UBL3wzfOlscd2jT0oxy9QA==',NULL,NULL,'default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1);
+(1,'741917776','UBL3wzfOlscd2jT0oxy9QA==',NULL,NULL,'default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1),
+(2,'richard','PDLx+YKFRPT7WSobvjHdrQMb62ozycMd','67252808@qq.com','0d70eb80-603d-43b9-b7d6-8226687f0e5f','default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1);
 
 /*Table structure for table `userlove` */
 
@@ -141,8 +144,8 @@ CREATE TABLE `userlove` (
   PRIMARY KEY (`user_love_id`),
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `userlove_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`),
-  CONSTRAINT `userlove_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  CONSTRAINT `userlove_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
+  CONSTRAINT `userlove_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Data for the table `userlove` */
@@ -157,7 +160,7 @@ CREATE TABLE `video` (
   `video_url` varchar(50) NOT NULL,
   PRIMARY KEY (`video_id`),
   KEY `video_post_id` (`video_post_id`),
-  CONSTRAINT `video_ibfk_1` FOREIGN KEY (`video_post_id`) REFERENCES `post` (`post_id`)
+  CONSTRAINT `video_ibfk_1` FOREIGN KEY (`video_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `video` */

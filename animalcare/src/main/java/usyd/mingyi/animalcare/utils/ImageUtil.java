@@ -1,6 +1,7 @@
 package usyd.mingyi.animalcare.utils;
 
 import org.apache.commons.codec.binary.Base64;
+import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
 
 import java.io.*;
@@ -213,6 +214,43 @@ public class ImageUtil {
 
         return post;
     }
+
+    public static void replacePetUrl(List<Pet> allPets,String path){
+        for (int i = 0; i < allPets.size(); i++) {
+
+            Pet pet = allPets.get(i);
+            String fileName = pet.getPetImageAddress();
+
+            if(fileName.equals("catDefault.jpg")||fileName.equals("dogDefault.jpg")){
+                //表明现在用户还是用的默认头像
+                //获取到上级路径
+                String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+                System.out.println(rootPath);
+                pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(rootPath+fileName));
+            }else {
+                //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+                pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+            }
+
+        }
+
+    }
+    public static void replacePetUrl(Pet pet,String path){
+            String fileName = pet.getPetImageAddress();
+
+            if(fileName.equals("catDefault.jpg")||fileName.equals("dogDefault.jpg")){
+                //表明现在用户还是用的默认头像
+                //获取到上级路径
+                String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+                System.out.println(rootPath);
+                pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(rootPath+fileName));
+            }else {
+                //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+                pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
+            }
+
+    }
+
 
     /* 流处理*/
     public static byte[]  getBytesByStream(InputStream inputStream){
