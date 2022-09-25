@@ -41,6 +41,8 @@
         where po.post_id=#{postId}
     </select>
 
+
+
     <resultMap id="postInfo" type="Post">
         <result property="postId" column="post_id"/>
         <result property="userId" column="post_user_id"/>

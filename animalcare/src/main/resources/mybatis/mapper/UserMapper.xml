@@ -7,9 +7,20 @@
         SELECT *
         FROM user AS u
         LEFT JOIN post AS po ON u.id = po.post_user_id
-        LEFT OUTER JOIN pet AS pe ON u.id = pe.pet_user_id
+        LEFT JOIN pet AS pe ON u.id = pe.pet_user_id
+        LEFT JOIN image as im on po.post_id=im.image_post_id
         WHERE u.username = #{username} and u.password = #{password}
     </select>
+
+    <select id="getProfile" resultMap="userInfo">
+        SELECT *
+        FROM user AS u
+                 LEFT JOIN post AS po ON u.id = po.post_user_id
+                 LEFT JOIN pet AS pe ON u.id = pe.pet_user_id
+                 LEFT JOIN image as im on po.post_id=im.image_post_id
+        WHERE u.id = #{userId}
+    </select>
+
 
     <resultMap id="userInfo" type="User">
         <result property="id" column="id"/>
@@ -22,10 +33,15 @@
             <result property="postId" column="post_id"/>
             <result property="userId" column="post_user_id"/>
             <result property="postContent" column="post_content"/>
-<!--            <collection property="commentList" ofType="Comment">
+            <result property="userAvatar" column="user_image_address"/>
+            <collection property="imageUrlList" ofType="String">
+                <result column="image_url"/>
+            </collection>
+<!--       <collection property="commentList" ofType="Comment">
 
             </collection>-->
         </collection>
+
         <collection property="petList" ofType="Pet">
             <result property="petId" column="pet_id"/>
             <result property="userId" column="pet_user_id"/>

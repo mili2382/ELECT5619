@@ -3,6 +3,7 @@ package usyd.mingyi.animalcare.utils;
 import org.apache.commons.codec.binary.Base64;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
+import usyd.mingyi.animalcare.pojo.User;
 
 import java.io.*;
 import java.util.List;
@@ -248,6 +249,25 @@ public class ImageUtil {
                 //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
                 pet.setPetImageAddress(ImageUtil.ImageToBase64ByLocal(path+File.separator+fileName));
             }
+
+    }
+    public static void replaceUserUrl(User user, String path){
+        String userImageAddress = user.getUserImageAddress();
+        if(userImageAddress.equals("default.jpg")){
+            //表明现在用户还是用的默认头像
+            //获取到上级路径
+            String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+            //System.out.println(rootPath);
+            user.setUserImageAddress(ImageUtil.ImageToBase64ByLocal(rootPath+userImageAddress));
+        }else {
+            //表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+            user.setUserImageAddress(ImageUtil.ImageToBase64ByLocal(path+File.separator+userImageAddress));
+        }
+
+        List<Post> postList = user.getPostList();
+        postList = replaceUrl(postList, path);
+        List<Pet> petList = user.getPetList();
+        replacePetUrl(petList,path);
 
     }
 

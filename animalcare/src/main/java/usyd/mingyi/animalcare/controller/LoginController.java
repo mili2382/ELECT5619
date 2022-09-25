@@ -86,7 +86,7 @@ public class LoginController {
             if(redisTemplate.hasKey("user")){
                 System.out.println(redisTemplate.opsForValue().get("user"));
             }
-            return new ResponseEntity<>(ResultData.success(user), HttpStatus.OK);
+            return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
 
         } else {
             return new ResponseEntity<>(ResultData.fail(401, "Password error"), HttpStatus.UNAUTHORIZED);
@@ -459,5 +459,23 @@ public class LoginController {
         if(i==0) return new ResponseEntity<>(ResultData.fail(201,"Fail to delete for no such pet"), HttpStatus.OK);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<Object> getProfile(@PathVariable("userId") int userId,HttpSession session) {
+       // int id = (int) session.getAttribute("id");
+        User profile = userService.getProfile(userId);
+        if(profile!=null)
+        ImageUtil.replaceUserUrl(profile,FILE_DISK_LOCATION);
+        return new ResponseEntity<>(ResultData.success(profile), HttpStatus.OK);
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<Object> getMyProfile(HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        User profile = userService.getProfile(id);
+        if(profile!=null)
+        ImageUtil.replaceUserUrl(profile,FILE_DISK_LOCATION);
+        return new ResponseEntity<>(ResultData.success(profile), HttpStatus.OK);
+    }
+
+
 
 }
