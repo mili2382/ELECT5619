@@ -18,5 +18,7 @@ public interface PostService {
     int deletePost(int postId);
     int addComment(int postId);
     List<Post> getPostByUserId(int userId);
+    List<Comment> getCommentsByPostId(int postId);
+
 
 }

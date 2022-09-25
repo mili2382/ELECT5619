@@ -339,47 +339,85 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/post/deletePost/{postId}")
     public ResponseEntity<Object> deletePost(@PathVariable("postId") int postId, HttpSession session) {
 
-        System.out.println("Delete post" + postId);
-        //session
-        postService.deletePost(postId);
-        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+        Post post = postService.queryPostById(postId);
+        if(post == null) {
+            return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
+        }else {
+            System.out.println("Delete post" + postId);
+            postService.deletePost(postId);
+            return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+        }
+
     }
 
-    @PostMapping
+    @PostMapping("/Post/addComment/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId, HttpSession session) {
-        System.out.println("Add comment to" + postId);
-        //session
+    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+
+        String commentContent = (String) session.getAttribute("commentContent");
+        String nickName = (String) session.getAttribute("nickName");
+
+        Comment comment = new Comment();
+        comment.setCommentContent(commentContent);
+        comment.setNickName(nickName);
+        comment.setPostId(postId);
+        comment.setCommentTime(System.currentTimeMillis());
+
+        if(commentContent == null) {
+            return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
+        }
+
+        if(postService.addComment(postId) != 1) {
+            return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
+        }
+
         postService.addComment(postId);
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/getPostByUserId/{id}")
     @ResponseBody
-    public ResponseEntity<Object> getPostsByUserId(int userId, HttpServletRequest request) {
-        System.out.println("Getting posts by" + userId);
-        //session
-        List<Post> PostsByUserId = userService.queryUserById(userId).getPostList();
-        if(userService.queryUserById(userId) == null) {
+    public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+
+        User user = userService.queryUserById(userId);
+        if(user == null) {
             return new ResponseEntity<>(ResultData.fail(201,"No such user"), HttpStatus.CREATED);
+        }else {
+//            List<Post> tempList = postService.getPostByUserId(userId);
+//            int i = 0;
+//            for(Post post: tempList) {
+//                post = ImageUtil.replaceUrl(postService.getPostByUserId(userId).get(i), FILE_DISK_LOCATION);
+//                PostsByUserId.add(post);
+//                i++;
+//            }
+            List<Post> PostsByUserId = ImageUtil.replaceUrl(postService.getPostByUserId(userId),FILE_DISK_LOCATION);
+
+            return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
         }
-        return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
     }
 
-//    @GetMapping
-//    @ResponseBody
-//    public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpRequest request) {
-//        System.out.println("Getting comments by" + postId);
-//        //session
-//        if(postService.queryPostById(postId) == null) {
-//            return new ResponseEntity<>(ResultData.fail(201,"No such post"), HttpStatus.CREATED);
-//        }
-//        List<Comment> CommentsByPostId = postService.queryPostById(postId).getCommentList();
-//        return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
-//    }
+    @GetMapping("/getCommentsByPostId/{postId}")
+    @ResponseBody
+    public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+
+        if(postService.queryPostById(postId) == null) {
+            return new ResponseEntity<>(ResultData.fail(201,"No such post"), HttpStatus.CREATED);
+        }else {
+            System.out.println("Getting comments by" + postId);
+            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+            return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+        }
+
+    }
 
 
 
