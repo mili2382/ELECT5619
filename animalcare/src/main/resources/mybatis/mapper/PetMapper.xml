@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="usyd.mingyi.animalcare.mapper.PetMapper">
     <insert id="addPet" parameterType="Pet" useGeneratedKeys="true" keyProperty="petId" keyColumn="pet_id">
-        insert into pet (pet_user_id,name,pet_image_address,category,age)
-        values (#{userId},#{petName},#{petImageAddress},#{category},#{age})
+        insert into pet (pet_user_id,name,pet_image_address,category,pet_description)
+        values (#{userId},#{petName},#{petImageAddress},#{category},#{petDescription})
     </insert>
     <insert id="addImage">
         insert into petimage(image_pet_id,image_url)values (#{imagePetId},#{imageUrl})
