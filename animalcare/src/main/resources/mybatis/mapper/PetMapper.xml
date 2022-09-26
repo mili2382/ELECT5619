@@ -10,7 +10,7 @@
     <insert id="addImage">
         insert into petimage(image_pet_id,image_url)values (#{imagePetId},#{imageUrl})
     </insert>
-    <select id="getPetList" resultMap="petInfo">
+    <select id="getPetList" resultMap="petsInfo">
         select * from pet where pet_user_id=#{userId}
     </select>
 
@@ -35,6 +35,16 @@
         <collection property="petImageList" ofType="String">
             <result column="image_url"/>
         </collection>
+    </resultMap>
+
+    <resultMap id="petsInfo" type="Pet">
+        <result property="petId" column="pet_id"/>
+        <!--<result property="userId" column="pet_user_id"/>-->
+        <result property="petName" column="name"/>
+        <result property="age" column="age"/>
+        <result property="category" column="category"/>
+        <result property="petDescription" column="pet_description"/>
+        <result property="petImageAddress" column="pet_image_address"/>
     </resultMap>
 
 </mapper>
