@@ -151,16 +151,35 @@ public class LoginController {
 
     @PostMapping("/edit")
     @ResponseBody
-    public ResponseEntity<Object> updateUserInfo(@RequestBody User userInfo) {
-
-        int i = userService.updateUser(userInfo);
-        if (i >= 1) {
-            return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
-
-        } else {
-            return new ResponseEntity<>(ResultData.fail(201, "Update fail"), HttpStatus.CREATED);
-
+    public ResponseEntity<Object> updateUserInfo(@RequestBody User userInfo,HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        String userName = (String) session.getAttribute("userName");
+        userInfo.setId(id);
+        String avatarUrl = userInfo.getUserImageAddress();
+        if(!StringUtil.isNullOrEmpty(avatarUrl)&&ImageUtil.checkImage(avatarUrl)){
+             //更改照片
+           String suffix = ImageUtil.getSuffix(avatarUrl);
+           String data = ImageUtil.getData(avatarUrl);
+            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+            String path = FILE_DISK_LOCATION + userName; //文件路径
+            try {
+                ImageUtil.convertBase64ToFile(data, path, tempFileName);
+                userInfo.setUserImageAddress(userName+"/"+tempFileName);
+                userService.updateUser(userInfo);
+                //删掉本地之前的头像（未写）
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+            }
+        }else {
+            //查到之前头像的address
+            User user = userService.queryUserById(id);
+            String preUserImageAddress = user.getUserImageAddress();
+            userInfo.setUserImageAddress(preUserImageAddress);
+            userService.updateUser(userInfo);
         }
+        return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
+
 
     }
 
