@@ -383,12 +383,11 @@ public class LoginController {
 
     @PostMapping("/Post/addComment/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId, HttpServletRequest request) {
+    public ResponseEntity<Object> addComment(@RequestBody Map map, @PathVariable("postId") int postId, HttpServletRequest request) {
 
         HttpSession session = request.getSession();
-
-        String commentContent = (String) session.getAttribute("commentContent");
         String nickName = (String) session.getAttribute("nickName");
+        String commentContent = (String) map.get("commentContent");
 
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
