@@ -382,14 +382,15 @@ public class LoginController {
 
     }
 
-    @PostMapping("/Post/addComment/{postId}")
+    @PostMapping("/Post/addComment")
     @ResponseBody
-    public ResponseEntity<Object> addComment(@RequestBody Map map, @PathVariable("postId") int postId, HttpServletRequest request) {
-
-        HttpSession session = request.getSession();
-        String nickName = (String) session.getAttribute("nickName");
+    public ResponseEntity<Object> addComment(@RequestBody Map map, HttpServletRequest request) {
 
         String commentContent = (String) map.get("commentContent");
+
+        HttpSession session = request.getSession();
+        int postId = (int) session.getAttribute("postId");
+        String nickName = (String) session.getAttribute("nickName");
 
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
