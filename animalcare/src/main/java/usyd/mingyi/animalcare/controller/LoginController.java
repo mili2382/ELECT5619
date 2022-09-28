@@ -370,12 +370,13 @@ public class LoginController {
     @DeleteMapping("/post/deletePost/{postId}")
     public ResponseEntity<Object> deletePost(@PathVariable("postId") int postId, HttpSession session) {
 
+        int id = (int) session.getAttribute("id");
         Post post = postService.queryPostById(postId);
         if(post == null) {
             return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
         }else {
             System.out.println("Delete post" + postId);
-            postService.deletePost(postId);
+            postService.deletePost(postId, id);
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 
@@ -389,15 +390,15 @@ public class LoginController {
         String nickName = (String) session.getAttribute("nickName");
         String commentContent = (String) map.get("commentContent");
 
+        if(commentContent == null) {
+            return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
+        }
+
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setNickName(nickName);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
-
-        if(commentContent == null) {
-            return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
-        }
 
         if(postService.addComment(postId) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);

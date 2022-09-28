@@ -64,8 +64,8 @@ public class PostServiceImp implements PostService{
     }
 
     @Override
-    public int deletePost(int postId) {
-        return postMapper.deletePost(postId);
+    public int deletePost(int postId, int userId) {
+        return postMapper.deletePost(postId, userId );
     }
 
     @Override

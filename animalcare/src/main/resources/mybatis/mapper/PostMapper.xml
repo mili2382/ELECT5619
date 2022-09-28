@@ -79,7 +79,7 @@
     </delete>
 
     <delete id="deletePost">
-        delete from post where post_id = #{postId}
+        delete from post where post_id = #{postId} and post_user_id =#{userId}
     </delete>
 
     <!--get post by user id-->
