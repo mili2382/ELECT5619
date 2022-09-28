@@ -40,8 +40,6 @@
         where po.post_id=#{postId}
     </select>
 
-
-
     <resultMap id="postInfo" type="Post">
         <result property="postId" column="post_id"/>
         <result property="userId" column="post_user_id"/>
@@ -82,7 +80,6 @@
         delete from post where post_id = #{postId} and post_user_id =#{userId}
     </delete>
 
-    <!--get post by user id-->
     <select id="getPostsByUserId" resultMap="postsById">
         select*from post AS po left join image AS i on po.post_id=i.image_post_id
                where po.post_user_id = #{userId}

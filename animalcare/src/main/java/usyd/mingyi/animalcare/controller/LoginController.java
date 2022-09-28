@@ -372,11 +372,11 @@ public class LoginController {
 
         int id = (int) session.getAttribute("id");
         Post post = postService.queryPostById(postId);
-        if(post == null) {
-            return new ResponseEntity<>(ResultData.fail(201,"No such post found"), HttpStatus.CREATED);
+        if(postService.deletePost(postId, id) == 0) {
+            return new ResponseEntity<>(ResultData.fail(201,"Fail to delete post, No such post found"), HttpStatus.CREATED);
         }else {
             System.out.println("Delete post" + postId);
-            postService.deletePost(postId, id);
+            //postService.deletePost(postId, id);
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 
@@ -388,11 +388,8 @@ public class LoginController {
 
         HttpSession session = request.getSession();
         String nickName = (String) session.getAttribute("nickName");
-        String commentContent = (String) map.get("commentContent");
 
-        if(commentContent == null) {
-            return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
-        }
+        String commentContent = (String) map.get("commentContent");
 
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
@@ -400,11 +397,13 @@ public class LoginController {
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
 
+        if(commentContent == null) {
+            return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
+        }
         if(postService.addComment(postId) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
         }
 
-        postService.addComment(postId);
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
 
