@@ -81,8 +81,7 @@ public class LoginController {
             HttpSession session = request.getSession();
             session.setAttribute("id", user.getId());
             session.setAttribute("userName", user.getUserName());
-            session.setAttribute("nickName",user.getNickName());
-            session.setAttribute("userAvatar",user.getUserImageAddress());
+
             redisTemplate.opsForValue().set("user",user,300,TimeUnit.SECONDS);
             if(redisTemplate.hasKey("user")){
                 System.out.println(redisTemplate.opsForValue().get("user"));
@@ -184,6 +183,52 @@ public class LoginController {
 
     }
 
+/*
+    @GetMapping("/getPetList")
+    @ResponseBody
+    public ResultData<List<Integer>> getPetList() {
+//        TODO: get pet from database
+        System.out.println("getting pet list");
+        List<Integer> pets = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            pets.add(i);
+        }
+        return ResultData.success(pets);
+    }
+
+    @GetMapping("/getFriendList")
+    @ResponseBody
+    public ResultData<List<Integer>> getFriendList() {
+//        TODO: get friends from database
+        System.out.println("getting friend list");
+        List<Integer> friends = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            friends.add(i);
+        }
+        return ResultData.success(friends);
+    }
+
+    @GetMapping("/getFriendRequestList")
+    @ResponseBody
+    public ResultData<List<Integer>> getFriendRequestList() {
+//        TODO: get friends from database
+        System.out.println("getting friend request list");
+        List<Integer> friends = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            friends.add(i);
+        }
+        return ResultData.success(friends);
+    }
+
+    @PostMapping("/post/newPet")
+    @ResponseBody
+    public ResponseEntity<Object> createNewPet(@RequestBody Map map, HttpServletRequest request) {
+        String petName = (String) map.get("petName");
+        String petDescription = (String) map.get("petDescription");
+        ArrayList<String> list = (ArrayList<String>) map.get("petImageAddress");
+        // TODO: add more logics
+        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
+    }*/
 
     @PostMapping("/post/newPost")
     @ResponseBody
@@ -339,62 +384,28 @@ public class LoginController {
 
     @PostMapping("/Post/addComment")
     @ResponseBody
-<<<<<<< Updated upstream
-    public ResponseEntity<Object> addComment(@RequestBody Map map, HttpServletRequest request) {
-=======
-<<<<<<< HEAD
-    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId,@RequestBody Map map, HttpServletRequest request) {
->>>>>>> Stashed changes
-
-        String commentContent = (String) map.get("commentContent");
-
-<<<<<<< Updated upstream
-        HttpSession session = request.getSession();
-        int postId = (int) session.getAttribute("postId");
-=======
-        String commentContent = (String) map.get("commentContent");
-
-=======
     public ResponseEntity<Object> addComment(@RequestBody Map map, HttpServletRequest request) {
 
         String commentContent = (String) map.get("commentContent");
 
         HttpSession session = request.getSession();
         int postId = (int) session.getAttribute("postId");
->>>>>>> 3a92d38c9739f91c3486b7c58e24ee0706c8a954
->>>>>>> Stashed changes
         String nickName = (String) session.getAttribute("nickName");
-        String userAvatar = (String) session.getAttribute("userAvatar");
 
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setNickName(nickName);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
-        comment.setUserAvatar(userAvatar);
 
         if(commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
         }
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-
-        if(postService.addComment(comment) == 1) {
-            return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
-
-        }else {
-            return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
-        }
-
-=======
->>>>>>> Stashed changes
         if(postService.addComment(postId) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
->>>>>>> 3a92d38c9739f91c3486b7c58e24ee0706c8a954
     }
 
     @GetMapping("/getPostByUserId/{id}")
@@ -550,50 +561,4 @@ public class LoginController {
 
 
 
-/*
-    @GetMapping("/getPetList")
-    @ResponseBody
-    public ResultData<List<Integer>> getPetList() {
-//        TODO: get pet from database
-        System.out.println("getting pet list");
-        List<Integer> pets = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            pets.add(i);
-        }
-        return ResultData.success(pets);
-    }
-
-    @GetMapping("/getFriendList")
-    @ResponseBody
-    public ResultData<List<Integer>> getFriendList() {
-//        TODO: get friends from database
-        System.out.println("getting friend list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
-    }
-
-    @GetMapping("/getFriendRequestList")
-    @ResponseBody
-    public ResultData<List<Integer>> getFriendRequestList() {
-//        TODO: get friends from database
-        System.out.println("getting friend request list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
-    }
-
-    @PostMapping("/post/newPet")
-    @ResponseBody
-    public ResponseEntity<Object> createNewPet(@RequestBody Map map, HttpServletRequest request) {
-        String petName = (String) map.get("petName");
-        String petDescription = (String) map.get("petDescription");
-        ArrayList<String> list = (ArrayList<String>) map.get("petImageAddress");
-        // TODO: add more logics
-        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
-    }*/
 }

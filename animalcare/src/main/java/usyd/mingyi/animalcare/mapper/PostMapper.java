@@ -17,16 +17,8 @@ public interface PostMapper {
     int cancelLove(int userId, int postId);
     int lovePlus(int postId);
     int loveMinus(int postId);
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-    int deletePost(int postId);
-    int addComment(Comment comment);
-=======
->>>>>>> Stashed changes
     int deletePost(int postId, int userId);
     int addComment(int postId);
->>>>>>> 3a92d38c9739f91c3486b7c58e24ee0706c8a954
     List<Post> getPostsByUserId(int userId);
     List<Comment> getCommentsByPostId(int postId);
 }

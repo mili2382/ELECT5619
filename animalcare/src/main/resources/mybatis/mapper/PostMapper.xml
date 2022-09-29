@@ -80,18 +80,6 @@
         delete from post where post_id = #{postId} and post_user_id =#{userId}
     </delete>
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-    <insert id="addComment" parameterType="Comment">
-        insert into comment(comment_id, comment_post_id, comment_time, comment_content,user_avatar,nickname)
-        values(#{id},#{postId},#{commentTime},#{commentContent},#{userAvatar},#{nickName})
-    </insert>
-
-    <!--get post by user id-->
-=======
->>>>>>> 3a92d38c9739f91c3486b7c58e24ee0706c8a954
->>>>>>> Stashed changes
     <select id="getPostsByUserId" resultMap="postsById">
         select*from post AS po left join image AS i on po.post_id=i.image_post_id
                where po.post_user_id = #{userId}
