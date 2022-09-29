@@ -47,4 +47,24 @@
         <result property="petImageAddress" column="pet_image_address"/>
     </resultMap>
 
+    <select id="myTest" resultMap="testMe">
+        select pet_id,name,age,category,pet_description,pet_image_address,image_url from pet
+                          left join petimage on pet_id=image_pet_id
+        where pet_id=#{petId} and pet_user_id=#{useId}
+    </select>
+
+    <resultMap id="testMe" type="java.util.Map">
+        <result property="petId" column="pet_id"/>
+        <!--<result property="userId" column="pet_user_id"/>-->
+        <result property="petName" column="name"/>
+        <result property="age" column="age"/>
+        <result property="category" column="category"/>
+        <result property="petDescription" column="pet_description"/>
+        <result property="petImageAddress" column="pet_image_address"/>
+      <!--  <result property="petImageList" column="image_url"/>-->
+        <collection property="petImageList" ofType="String" javaType="java.util.List">
+            <result column="image_url"/>
+        </collection>
+    </resultMap>
+
 </mapper>

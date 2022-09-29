@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import usyd.mingyi.animalcare.mapper.PetMapper;
 import usyd.mingyi.animalcare.service.PostService;
 
 
@@ -11,13 +12,10 @@ import usyd.mingyi.animalcare.service.PostService;
 class AnimalcareApplicationTests {
 
     @Autowired
-    PostService postService;
-
-
+    PetMapper petMapper;
     @Test
     public void test(){
-        boolean b = postService.checkLoved(1, 1);
-        System.out.println(b);
+        System.out.println(petMapper.myTest(1, 1));
     }
 
 }
