@@ -25,15 +25,19 @@ CREATE TABLE `comment` (
   `comment_post_id` int(5) NOT NULL,
   `comment_time` bigint(15) DEFAULT NULL,
   `comment_content` varchar(100) NOT NULL,
+  `user_avatar` varchar(50) DEFAULT NULL,
+  `nickname` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`comment_id`),
   KEY `comment_post_id` (`comment_post_id`),
   CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`comment_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `comment` */
 
-insert  into `comment`(`comment_id`,`comment_post_id`,`comment_time`,`comment_content`) values 
-(1,1,1,'Test for comment');
+insert  into `comment`(`comment_id`,`comment_post_id`,`comment_time`,`comment_content`,`user_avatar`,`nickname`) values 
+(1,1,1,'Test for comment',NULL,NULL),
+(2,1,1664418155717,'Test comment','default.jpg','lazy to set name'),
+(3,1,1664419419218,'Test comment','default.jpg','lazy to set name');
 
 /*Table structure for table `friendlist` */
 

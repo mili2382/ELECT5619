@@ -81,7 +81,8 @@ public class LoginController {
             HttpSession session = request.getSession();
             session.setAttribute("id", user.getId());
             session.setAttribute("userName", user.getUserName());
-
+            session.setAttribute("nickName",user.getNickName());
+            session.setAttribute("userAvatar",user.getUserImageAddress());
             redisTemplate.opsForValue().set("user",user,300,TimeUnit.SECONDS);
             if(redisTemplate.hasKey("user")){
                 System.out.println(redisTemplate.opsForValue().get("user"));
@@ -382,26 +383,26 @@ public class LoginController {
 
     }
 
-    @PostMapping("/Post/addComment")
+    @PostMapping("/Post/addComment/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> addComment(@RequestBody Map map, HttpServletRequest request) {
-
-        String commentContent = (String) map.get("commentContent");
+    public ResponseEntity<Object> addComment(@PathVariable("postId") int postId,@RequestBody Map map, HttpServletRequest request) {
 
         HttpSession session = request.getSession();
-        int postId = (int) session.getAttribute("postId");
+        String commentContent = (String) map.get("commentContent");
         String nickName = (String) session.getAttribute("nickName");
+        String userAvatar = (String) session.getAttribute("userAvatar");
 
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setNickName(nickName);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
+        comment.setUserAvatar(userAvatar);
 
         if(commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
         }
-        if(postService.addComment(postId) != 1) {
+        if(postService.addComment(comment) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
         }
 

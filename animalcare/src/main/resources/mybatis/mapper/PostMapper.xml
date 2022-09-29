@@ -101,9 +101,9 @@
         </collection>
     </resultMap>
 
-    <insert id="addComment" parameterType="Comment" useGeneratedKeys="true" keyProperty="id" keyColumn="comment_id">
-        insert into comment(comment_id, comment_post_id, comment_time, comment_content)
-        values(#{id},#{postId},#{commentTime},#{commentContent})
+    <insert id="addComment" parameterType="Comment">
+        insert into comment(comment_id, comment_post_id, comment_time, comment_content,user_avatar,nickname)
+        values(#{id},#{postId},#{commentTime},#{commentContent},#{userAvatar},#{nickName})
     </insert>
 
     <select id="getCommentsByPostId" resultMap="commentsByPostId">
