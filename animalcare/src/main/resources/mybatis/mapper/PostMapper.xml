@@ -107,7 +107,9 @@
     </insert>
 
     <select id="getCommentsByPostId" resultMap="commentsByPostId">
-        select*from comment where comment_post_id = #{postId}
+        select*from comment AS co
+            left join user AS u on co.user_avatar = u.user_image_address
+        where comment_post_id = #{postId}
     </select>
 
     <resultMap id="commentsByPostId" type="Comment">
@@ -116,7 +118,8 @@
         <result property="commentTime" column="comment_time" />
         <result property="commentContent" column="comment_content" />
         <result property="nickName" column="nickname" />
-        <result property="userAvatar" column="user_image_address" />
+        <result property="userAvatar" column="user_avatar" />
+
     </resultMap>
 
 </mapper>
