@@ -108,7 +108,7 @@
 
     <select id="getCommentsByPostId" resultMap="commentsByPostId">
         select*from comment AS co
-            left join user AS u on co.user_avatar = u.user_image_address
+            left join user AS u on co.user_avatar = u.user_image_address and co.nickname = u.nickname
         where comment_post_id = #{postId}
     </select>
 

@@ -2,6 +2,7 @@ package usyd.mingyi.animalcare.utils;
 
 import io.netty.util.internal.StringUtil;
 import org.apache.commons.codec.binary.Base64;
+import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
@@ -189,8 +190,6 @@ public class ImageUtil {
 
     public static Post replaceUrl(Post post,String path){
 
-
-
             List<String> imageUrlList = post.getImageUrlList();
 
             String userAvatar = post.getUserAvatar();
@@ -216,6 +215,32 @@ public class ImageUtil {
             }
 
         return post;
+    }
+
+    public static Comment replaceAvatarUrl(Comment comment, String path) {
+
+        if(comment.getUserAvatar().equals("default.jpg")){//表明现在用户还是用的默认头像
+            //获取到上级路径
+            String rootPath = path.substring(0, path.lastIndexOf("/")+1);
+            comment.setUserAvatar(ImageUtil.ImageToBase64ByLocal(rootPath+comment.getUserAvatar()));
+        }else {//表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+            comment.setUserAvatar(ImageUtil.ImageToBase64ByLocal(path+File.separator+comment.getUserAvatar()));
+        }
+        return comment;
+    }
+
+    public static List<Comment> replaceAvatarUrl(List<Comment> allComment, String path) {
+
+        for (Comment comment : allComment) {
+            if (comment.getUserAvatar().equals("default.jpg")) {//表明现在用户还是用的默认头像
+                //获取到上级路径
+                String rootPath = path.substring(0, path.lastIndexOf("/") + 1);
+                comment.setUserAvatar(ImageUtil.ImageToBase64ByLocal(rootPath + comment.getUserAvatar()));
+            } else {//表面已经更改过默认头像 自己的头像存在自己独立的文件夹里面
+                comment.setUserAvatar(ImageUtil.ImageToBase64ByLocal(path + File.separator + comment.getUserAvatar()));
+            }
+        }
+        return allComment;
     }
 
     public static void replacePetUrl(List<Pet> allPets,String path){
@@ -310,6 +335,8 @@ public class ImageUtil {
         }
         return null;
     }
+
+
 
 
 }

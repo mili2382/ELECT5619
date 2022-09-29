@@ -442,12 +442,21 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201,"No such post"), HttpStatus.CREATED);
         }else {
             System.out.println("Getting comments by" + postId);
-            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+//            List<Comment> tempCommentsByPostId = postService.getCommentsByPostId(postId);
+//            List<Comment> CommentsByPostId = null;
+//
+//            for(Comment comment: tempCommentsByPostId) {
+//
+//                CommentsByPostId.add(ImageUtil.replaceAvatarUrl(comment, FILE_DISK_LOCATION));
+//                int id = (int) session.getAttribute("id");
+//                User user = userService.queryUserById(id);
+//                comment.setUserName(user.getUserName());
+//            }
+            List<Comment> CommentsByPostId = ImageUtil.replaceAvatarUrl(postService.getCommentsByPostId(postId), FILE_DISK_LOCATION);
+
             return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
         }
-
     }
-
 
     @PostMapping("/pet/newPet")
     public ResponseEntity<Object> addPet(@RequestBody Map map,HttpSession session) {

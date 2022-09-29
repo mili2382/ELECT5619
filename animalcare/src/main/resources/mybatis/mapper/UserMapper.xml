@@ -65,7 +65,7 @@
         select * from user where username = #{username}
     </select>
 
-    <select id="queryUserById" resultType="User">
+    <select id="queryUserById" resultMap="userInfo">
         select * from user where id = #{userId}
     </select>
 
