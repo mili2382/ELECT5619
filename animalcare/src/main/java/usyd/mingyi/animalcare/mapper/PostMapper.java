@@ -21,4 +21,5 @@ public interface PostMapper {
     int addComment(Comment comment);
     List<Post> getPostsByUserId(int userId);
     List<Comment> getCommentsByPostId(int postId);
+    List<Post> getPostsByKeywords(String keywords);
 }

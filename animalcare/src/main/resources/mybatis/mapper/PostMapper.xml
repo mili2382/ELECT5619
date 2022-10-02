@@ -19,6 +19,13 @@
         limit #{currPage} , #{pageSize}
     </select>
 
+    <select id="getPostsByKeywords" resultMap="postInfos">
+        select * from post AS po
+                          left join image AS i on po.post_id=i.image_post_id
+                          left join user As u on po.post_user_id=u.id
+        where match (post_content) against (#{keywords}in boolean mode)
+    </select>
+
     <resultMap id="postInfos" type="Post">
         <result property="postId" column="post_id"/>
         <result property="userId" column="post_user_id"/>
@@ -119,7 +126,8 @@
         <result property="commentContent" column="comment_content" />
         <result property="nickName" column="nickname" />
         <result property="userAvatar" column="user_avatar" />
-
     </resultMap>
+    
 
+    
 </mapper>

@@ -84,4 +84,9 @@ public class PostServiceImp implements PostService{
         return postMapper.getCommentsByPostId(postId);
     }
 
+    @Override
+    public List<Post> getPostsByKeywords(String keywords) {
+        return postMapper.getPostsByKeywords(keywords);
+    }
+
 }

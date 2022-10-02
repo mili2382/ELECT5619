@@ -19,6 +19,7 @@ public interface PostService {
     int addComment(Comment comment);
     List<Post> getPostByUserId(int userId);
     List<Comment> getCommentsByPostId(int postId);
+    List<Post> getPostsByKeywords(String keywords);
 
 
 }
