@@ -15,4 +15,8 @@ public class MvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/login", "/signup","/username","/email", "/images/**","/*.JPG");//放行模式
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/**").addResourceLocations("file:D:/userdata/");
+    }
 }
