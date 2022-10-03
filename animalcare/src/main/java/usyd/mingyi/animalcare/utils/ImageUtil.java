@@ -155,7 +155,7 @@ public class ImageUtil {
         return suffix;
     }
 
-    /*数据库保存的是图片的名字,需要替换图片名字为base64数据*/
+   /* *//*数据库保存的是图片的名字,需要替换图片名字为base64数据*//*
     public static List<Post> replaceUrl(List<Post> allPosts,String path){
         for (int i = 0; i < allPosts.size(); i++) {
 
@@ -316,9 +316,9 @@ public class ImageUtil {
         replacePetUrl(petList,path);
 
     }
+*/
 
-
-    /* 流处理*/
+  /*  *//* 流处理*//*
     public static byte[]  getBytesByStream(InputStream inputStream){
         byte[] bytes = new byte[1024];
 
@@ -335,7 +335,7 @@ public class ImageUtil {
         }
         return null;
     }
-
+*/
 
 
 

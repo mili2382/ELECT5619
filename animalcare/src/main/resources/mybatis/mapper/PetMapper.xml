@@ -26,7 +26,6 @@
 
     <resultMap id="petInfo" type="Pet">
         <result property="petId" column="pet_id"/>
-        <!--<result property="userId" column="pet_user_id"/>-->
         <result property="petName" column="name"/>
         <result property="age" column="age"/>
         <result property="category" column="category"/>
@@ -39,7 +38,6 @@
 
     <resultMap id="petsInfo" type="Pet">
         <result property="petId" column="pet_id"/>
-        <!--<result property="userId" column="pet_user_id"/>-->
         <result property="petName" column="name"/>
         <result property="age" column="age"/>
         <result property="category" column="category"/>

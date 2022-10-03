@@ -51,6 +51,7 @@ public class LoginController {
     private RedisTemplate redisTemplate;
 
     public final static String FILE_DISK_LOCATION = "D://userdata/";
+    public final static String PROJECT_PREFIX = "localhost:8080/images/";
 
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
@@ -165,7 +166,7 @@ public class LoginController {
             String path = FILE_DISK_LOCATION + userName; //文件路径
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                userInfo.setUserImageAddress(userName+"/"+tempFileName);
+                userInfo.setUserImageAddress(PROJECT_PREFIX+userName+"/"+tempFileName);
                 userService.updateUser(userInfo);
                 //删掉本地之前的头像（未写）
             } catch (Exception e) {
@@ -275,7 +276,7 @@ public class LoginController {
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                postService.addImage(postId, userName+"/"+tempFileName);
+                postService.addImage(postId, PROJECT_PREFIX+userName+"/"+tempFileName);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -293,7 +294,7 @@ public class LoginController {
     public ResponseEntity<Object> getPosts(HttpSession session,@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
         System.out.println("get post: " + currPage + pageSize);
         String userName = (String) session.getAttribute("userName");
-        List<Post> allPosts = ImageUtil.replaceUrl(postService.getAllPosts(currPage,pageSize), FILE_DISK_LOCATION );
+        List<Post> allPosts = postService.getAllPosts(currPage,pageSize);
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
 
@@ -307,7 +308,7 @@ public class LoginController {
         int id = (int) session.getAttribute("id");
         Post post = postService.queryPostById(postId);
         if(post!=null){
-            post = ImageUtil.replaceUrl(postService.queryPostById(postId), FILE_DISK_LOCATION );
+            post = postService.queryPostById(postId);
             boolean b = postService.checkLoved(id, postId);
             post.setLoved(b);
             return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
@@ -318,40 +319,7 @@ public class LoginController {
 
 
 
-    /*根据图片名字取到对应的图片 暂时不用*/
-    @GetMapping("/getImage")
-    public ResponseEntity<Object> getImage(@RequestParam("imageName") String imageName, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String userName = (String) session.getAttribute("userName");
-        String type = imageName.substring(imageName.lastIndexOf(".") + 1);
-        System.out.println(type);
 
-        String path = FILE_DISK_LOCATION + userName + File.separator + imageName;
-        System.out.println(path);
-        File file = new File(path);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            return new ResponseEntity<>(ResultData.fail(201, "No such file"), HttpStatus.CREATED);
-        }
-
-        byte[] bytesByStream = ImageUtil.getBytesByStream(inputStream);
-
-        final HttpHeaders headers = new HttpHeaders();
-        if (type.equalsIgnoreCase("jpg")) {
-            headers.setContentType(MediaType.IMAGE_JPEG);
-        } else if (type.equalsIgnoreCase("png")) {
-            headers.setContentType(MediaType.IMAGE_PNG);
-        } else if (type.equalsIgnoreCase("gif")) {
-            headers.setContentType(MediaType.IMAGE_GIF);
-        } else {
-            return new ResponseEntity<>(ResultData.fail(201, "Image invalid"),HttpStatus.CREATED);
-        }
-
-        return new ResponseEntity<>(bytesByStream, headers, HttpStatus.OK);
-
-    }
 
     @GetMapping("/love/{postId}")
     public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
@@ -426,7 +394,7 @@ public class LoginController {
 //                PostsByUserId.add(post);
 //                i++;
 //            }
-            List<Post> PostsByUserId = ImageUtil.replaceUrl(postService.getPostByUserId(userId),FILE_DISK_LOCATION);
+            List<Post> PostsByUserId =postService.getPostByUserId(userId);
 
             return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
         }
@@ -452,7 +420,7 @@ public class LoginController {
 //                User user = userService.queryUserById(id);
 //                comment.setUserName(user.getUserName());
 //            }
-            List<Comment> CommentsByPostId = ImageUtil.replaceAvatarUrl(postService.getCommentsByPostId(postId), FILE_DISK_LOCATION);
+            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
 
             return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
         }
@@ -477,9 +445,9 @@ public class LoginController {
 
         if(StringUtil.isNullOrEmpty(avatarUrl)){
             if(category.equals("dog")){
-            pet.setPetImageAddress("dogDefault.jpg");
+            pet.setPetImageAddress(PROJECT_PREFIX+"dogDefault.jpg");
             }else {
-                pet.setPetImageAddress("catDefault.jpg");
+                pet.setPetImageAddress(PROJECT_PREFIX+"catDefault.jpg");
             }
 
 
@@ -530,7 +498,6 @@ public class LoginController {
     public ResponseEntity<Object> getPetList(HttpSession session) {
         int id = (int) session.getAttribute("id");
         List<Pet> petList = petService.getPetList(id);
-        ImageUtil.replacePetUrl(petList,FILE_DISK_LOCATION);
         return new ResponseEntity<>(ResultData.success(petList), HttpStatus.OK);
     }
 
@@ -540,7 +507,6 @@ public class LoginController {
         Pet pet = petService.getPet(petId, id);
 
         if(pet!=null){
-        ImageUtil.replacePetUrl(pet,FILE_DISK_LOCATION);
         return new ResponseEntity<>(ResultData.success(pet), HttpStatus.OK);
         }else {
             return new ResponseEntity<>(ResultData.fail(201,"No such pet found"), HttpStatus.CREATED);
@@ -557,16 +523,13 @@ public class LoginController {
     public ResponseEntity<Object> getProfile(@PathVariable("userId") int userId,HttpSession session) {
        // int id = (int) session.getAttribute("id");
         User profile = userService.getProfile(userId);
-        if(profile!=null)
-        ImageUtil.replaceUserUrl(profile,FILE_DISK_LOCATION);
+
         return new ResponseEntity<>(ResultData.success(profile), HttpStatus.OK);
     }
     @GetMapping("/profile")
     public ResponseEntity<Object> getMyProfile(HttpSession session) {
         int id = (int) session.getAttribute("id");
         User profile = userService.getProfile(id);
-        if(profile!=null)
-        ImageUtil.replaceUserUrl(profile,FILE_DISK_LOCATION);
         return new ResponseEntity<>(ResultData.success(profile), HttpStatus.OK);
     }
 
