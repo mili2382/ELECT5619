@@ -13,20 +13,20 @@
         insert into image(image_post_id,image_url)values (#{imagePostId},#{imageUrl})
     </insert>
 
-    <select id="getAllPosts" resultMap="postInfos">
+    <select id="getAllPosts" resultMap="postsInfo">
         select *,(SELECT COUNT(*) FROM post)AS total from post AS po left join image AS i on po.post_id=i.image_post_id
         left join user As u on po.post_user_id=u.id
         limit #{currPage} , #{pageSize}
     </select>
 
-    <select id="getPostsByKeywords" resultMap="postInfos">
+    <select id="getPostsByKeywords" resultMap="postsInfo">
         select * from post AS po
                           left join image AS i on po.post_id=i.image_post_id
                           left join user As u on po.post_user_id=u.id
         where match (post_content) against (#{keywords}in boolean mode)
     </select>
 
-    <resultMap id="postInfos" type="Post">
+    <resultMap id="postsInfo" type="Post">
         <result property="postId" column="post_id"/>
         <result property="userId" column="post_user_id"/>
         <result property="love" column="love"/>

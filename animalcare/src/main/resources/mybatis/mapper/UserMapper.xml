@@ -34,7 +34,6 @@
             <result property="postId" column="post_id"/>
             <result property="topic" column="topic"/>
             <result property="userId" column="post_user_id"/>
-         <!--   <result property="userAvatar" column="user_image_address"/>-->
             <collection property="imageUrlList" ofType="String">
                 <result column="image_url"/>
             </collection>
