@@ -15,7 +15,7 @@
 
     <select id="getAllPosts" resultMap="postsInfo">
         select *,(SELECT COUNT(*) FROM post)AS total from post AS po left join image AS i on po.post_id=i.image_post_id
-        left join user As u on po.post_user_id=u.id
+        left join user As u on po.post_user_id=u.id order by
         limit #{currPage} , #{pageSize}
     </select>
 

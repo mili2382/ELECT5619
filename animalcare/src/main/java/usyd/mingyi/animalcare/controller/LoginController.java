@@ -449,7 +449,7 @@ public class LoginController {
             String path = FILE_DISK_LOCATION + userName; //文件路径
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                pet.setPetImageAddress(userName+"/"+tempFileName);
+                pet.setPetImageAddress(PROJECT_PREFIX+userName+"/"+tempFileName);
 
 
             } catch (Exception e) {
@@ -474,7 +474,7 @@ public class LoginController {
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                petService.addImage(petId,userName+"/"+tempFileName);
+                petService.addImage(petId,PROJECT_PREFIX+userName+"/"+tempFileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
