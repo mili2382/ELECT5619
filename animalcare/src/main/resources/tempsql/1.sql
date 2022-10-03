@@ -112,8 +112,8 @@ CREATE TABLE `petimage` (
 /*Data for the table `petimage` */
 
 insert  into `petimage`(`image_id`,`image_pet_id`,`image_url`) values 
-(1,1,'741917776/2.jpg'),
-(2,1,'741917776/1.jpg');
+(1,1,'localhost:8080/images/741917776/2.jpg'),
+(2,1,'localhost:8080/images/741917776/1.jpg');
 
 /*Table structure for table `post` */
 
