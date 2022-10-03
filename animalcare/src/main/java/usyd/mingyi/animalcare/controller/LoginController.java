@@ -286,10 +286,14 @@ public class LoginController {
 
     @GetMapping("/getPosts")
     @ResponseBody
-    public ResponseEntity<Object> getPosts(HttpSession session, @RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
-        System.out.println("get post: " + currPage + pageSize);
-        String userName = (String) session.getAttribute("userName");
+    public ResponseEntity<Object> getPosts(@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
         List<Post> allPosts = postService.getAllPosts(currPage, pageSize);
+        return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
+    }
+    @GetMapping("/getPostsOrderByLove")
+    @ResponseBody
+    public ResponseEntity<Object> getPostsOrderByLove(@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
+        List<Post> allPosts = postService.getAllPostsOrderByLove(currPage, pageSize);
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
 

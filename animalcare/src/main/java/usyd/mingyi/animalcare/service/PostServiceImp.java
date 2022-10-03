@@ -30,6 +30,11 @@ public class PostServiceImp implements PostService{
     }
 
     @Override
+    public List<Post> getAllPostsOrderByLove(int currPage, int pageSize) {
+        return postMapper.getAllPostsOrderByLove(currPage,pageSize);
+    }
+
+    @Override
     public Post queryPostById(int postId) {
         return postMapper.queryPostById(postId);
     }

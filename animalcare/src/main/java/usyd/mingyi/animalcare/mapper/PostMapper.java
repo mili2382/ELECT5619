@@ -11,6 +11,7 @@ public interface PostMapper {
     int addPost(Post post);
     int addImage(int imagePostId,String imageUrl);
     List<Post> getAllPosts(int currPage, int pageSize);
+    List<Post> getAllPostsOrderByLove(int currPage, int pageSize);
     Post queryPostById(int postId);
     boolean checkLoved(int userId,int postId);
     int love(int userId, int postId);
@@ -22,4 +23,5 @@ public interface PostMapper {
     List<Post> getPostsByUserId(int userId);
     List<Comment> getCommentsByPostId(int postId);
     List<Post> getPostsByKeywords(String keywords);
+
 }

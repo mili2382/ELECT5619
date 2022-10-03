@@ -18,7 +18,11 @@
         left join user As u on po.post_user_id=u.id order by po.post_id desc
         limit #{currPage} , #{pageSize}
     </select>
-
+    <select id="getAllPostsOrderByLove" resultMap="postsInfo">
+        select *,(SELECT COUNT(*) FROM post)AS total from post AS po left join image AS i on po.post_id=i.image_post_id
+                                                                     left join user As u on po.post_user_id=u.id order by po.love desc
+            limit #{currPage} , #{pageSize}
+    </select>
     <select id="getPostsByKeywords" resultMap="postsInfo">
         select * from post AS po
                           left join image AS i on po.post_id=i.image_post_id
