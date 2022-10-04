@@ -12,6 +12,7 @@ import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
+import usyd.mingyi.animalcare.service.FriendService;
 import usyd.mingyi.animalcare.service.PetService;
 import usyd.mingyi.animalcare.service.PostService;
 import usyd.mingyi.animalcare.service.UserService;
@@ -22,6 +23,7 @@ import usyd.mingyi.animalcare.utils.Verification;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.websocket.Session;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,9 @@ public class LoginController {
 
     @Autowired
     PetService petService;
+
+    @Autowired
+    FriendService friendService;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -530,6 +535,64 @@ public class LoginController {
         keywords = keywords + "*";
         List<Post> postsByKeywords = postService.getPostsByKeywords(keywords);
         return new ResponseEntity<>(ResultData.success(postsByKeywords), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> sendFriendRequest(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+
+        int result = friendService.sendFriendRequest(fromId, toId);
+
+        if(result==2){
+            return new ResponseEntity<>(ResultData.success("Directly be friends"), HttpStatus.OK);
+
+        }else if(result==1){
+            return new ResponseEntity<>(ResultData.success("Request have been sent"), HttpStatus.OK);
+
+        }else if(result==0) {
+            return new ResponseEntity<>(ResultData.fail(201,"Do not add again"), HttpStatus.CREATED);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"You are already friends"), HttpStatus.CREATED);
+        }
+
+    }
+
+    @PostMapping("/friends/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> acceptFriendRequest(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+
+        int request = friendService.acceptFriendRequest(fromId, toId);
+        if(request>=1){
+            return new ResponseEntity<>(ResultData.success("Success to add friend"), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"Fail to add friend"), HttpStatus.CREATED);
+        }
+    }
+
+    @DeleteMapping("/friends/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> rejectFriendRequest(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Can not reject yourself"), HttpStatus.CREATED);
+
+        int request = friendService.rejectFriendRequest(fromId, toId);
+        if(request>=1){
+            return new ResponseEntity<>(ResultData.success("Success to reject request"), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"Fail to reject request"), HttpStatus.CREATED);
+        }
+    }
+
+    @GetMapping("/friends")
+    @ResponseBody
+    public ResponseEntity<Object> getFriendsList( HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        List<User> allFriends = friendService.getAllFriends(id);
+        return new ResponseEntity<>(ResultData.success(allFriends), HttpStatus.OK);
     }
 
 
