@@ -59,16 +59,6 @@ public class PostServiceImp implements PostService{
     }
 
     @Override
-    public int lovePlus(int postId) {
-        return postMapper.lovePlus(postId);
-    }
-
-    @Override
-    public int loveMinus(int postId) {
-        return postMapper.loveMinus(postId);
-    }
-
-    @Override
     public int deletePost(int postId, int userId) {
         return postMapper.deletePost(postId, userId );
     }
@@ -77,7 +67,6 @@ public class PostServiceImp implements PostService{
     public int addComment(Comment comment) {
         return postMapper.addComment(comment);
     }
-
 
     @Override
     public List<Post> getPostByUserId(int userId) {

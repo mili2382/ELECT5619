@@ -6,7 +6,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import usyd.mingyi.animalcare.mapper.UserMapper;
-import usyd.mingyi.animalcare.pojo.Post;
 import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.utils.Verification;
 

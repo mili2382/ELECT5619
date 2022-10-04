@@ -14,8 +14,6 @@ public interface PostService {
     boolean checkLoved(int userId,int postId);
     int love(int userId, int postId);
     int cancelLove(int userId, int postId);
-    int lovePlus(int postId);
-    int loveMinus(int postId);
     int deletePost(int postId, int userId);
     int addComment(Comment comment);
     List<Post> getPostByUserId(int userId);
