@@ -25,7 +25,7 @@ CREATE TABLE `comment` (
   `comment_post_id` int(5) NOT NULL,
   `comment_time` bigint(15) DEFAULT NULL,
   `comment_content` varchar(100) NOT NULL,
-  `user_avatar` varchar(50) DEFAULT NULL,
+  `user_avatar` varchar(100) DEFAULT NULL,
   `nickname` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`comment_id`),
   KEY `comment_post_id` (`comment_post_id`),
@@ -61,7 +61,7 @@ DROP TABLE IF EXISTS `image`;
 CREATE TABLE `image` (
   `image_id` int(5) NOT NULL AUTO_INCREMENT,
   `image_post_id` int(5) NOT NULL,
-  `image_url` varchar(50) NOT NULL,
+  `image_url` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`image_id`),
   KEY `image_post_id` (`image_post_id`),
   CONSTRAINT `image_ibfk_1` FOREIGN KEY (`image_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
@@ -80,7 +80,7 @@ CREATE TABLE `pet` (
   `pet_id` int(5) NOT NULL AUTO_INCREMENT,
   `pet_user_id` int(5) NOT NULL,
   `name` varchar(20) NOT NULL,
-  `pet_image_address` varchar(50) DEFAULT NULL,
+  `pet_image_address` varchar(100) DEFAULT NULL,
   `category` varchar(10) DEFAULT NULL,
   `age` int(4) DEFAULT NULL,
   `pet_description` varchar(50) DEFAULT NULL,
@@ -103,7 +103,7 @@ DROP TABLE IF EXISTS `petimage`;
 CREATE TABLE `petimage` (
   `image_id` int(5) NOT NULL AUTO_INCREMENT,
   `image_pet_id` int(5) NOT NULL,
-  `image_url` varchar(50) NOT NULL,
+  `image_url` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`image_id`),
   KEY `image_pet_id` (`image_pet_id`),
   CONSTRAINT `petimage_ibfk_1` FOREIGN KEY (`image_pet_id`) REFERENCES `pet` (`pet_id`) ON DELETE CASCADE
@@ -152,7 +152,7 @@ CREATE TABLE `user` (
   `password` varchar(40) DEFAULT NULL,
   `email` varchar(20) DEFAULT NULL,
   `uuid` varchar(80) DEFAULT NULL,
-  `user_image_address` varchar(50) DEFAULT 'localhost:8080/images/default.jpg',
+  `user_image_address` varchar(100) DEFAULT NULL,
   `nickname` varchar(20) DEFAULT 'lazy to set name',
   `description` varchar(200) DEFAULT 'this gay is very lazy to write decription',
   `tag` varchar(20) DEFAULT 'Cat',
