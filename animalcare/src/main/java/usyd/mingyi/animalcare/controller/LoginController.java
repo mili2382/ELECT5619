@@ -185,52 +185,6 @@ public class LoginController {
 
     }
 
-/*
-    @GetMapping("/getPetList")
-    @ResponseBody
-    public ResultData<List<Integer>> getPetList() {
-//        TODO: get pet from database
-        System.out.println("getting pet list");
-        List<Integer> pets = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            pets.add(i);
-        }
-        return ResultData.success(pets);
-    }
-
-    @GetMapping("/getFriendList")
-    @ResponseBody
-    public ResultData<List<Integer>> getFriendList() {
-//        TODO: get friends from database
-        System.out.println("getting friend list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
-    }
-
-    @GetMapping("/getFriendRequestList")
-    @ResponseBody
-    public ResultData<List<Integer>> getFriendRequestList() {
-//        TODO: get friends from database
-        System.out.println("getting friend request list");
-        List<Integer> friends = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            friends.add(i);
-        }
-        return ResultData.success(friends);
-    }
-
-    @PostMapping("/post/newPet")
-    @ResponseBody
-    public ResponseEntity<Object> createNewPet(@RequestBody Map map, HttpServletRequest request) {
-        String petName = (String) map.get("petName");
-        String petDescription = (String) map.get("petDescription");
-        ArrayList<String> list = (ArrayList<String>) map.get("petImageAddress");
-        // TODO: add more logics
-        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
-    }*/
 
     @PostMapping("/post/newPost")
     @ResponseBody
@@ -512,6 +466,13 @@ public class LoginController {
         if (i == 0) return new ResponseEntity<>(ResultData.fail(201, "Fail to delete for no such pet"), HttpStatus.OK);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
+
+    @PutMapping("/pet/{petId}")
+    public ResponseEntity<Object> updatePet(@PathVariable("petId") int petId, HttpSession session) {
+
+        return null;
+    }
+
 
     @GetMapping("/profile/{userId}")
     public ResponseEntity<Object> getProfile(@PathVariable("userId") int userId, HttpSession session) {

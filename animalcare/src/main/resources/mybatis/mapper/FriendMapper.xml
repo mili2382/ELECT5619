@@ -31,11 +31,12 @@
     </insert>
 
     <select id="getAllFriends" resultMap="friendsInfo">
-        SELECT *
+        SELECT id,nickname,description,user_image_address
         FROM friendlist AS fl
         LEFT JOIN user AS u ON u.id = fl.friend_id
         WHERE fl.user_id = #{id}
     </select>
+
     <resultMap id="friendsInfo" type="User">
         <result property="id" column="id"/>
         <result property="nickName" column="nickname"/>
