@@ -23,21 +23,21 @@ DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment` (
   `comment_id` int(5) NOT NULL AUTO_INCREMENT,
   `comment_post_id` int(5) NOT NULL,
+  `comment_user_id` int(5) NOT NULL,
   `comment_time` bigint(15) DEFAULT NULL,
   `comment_content` varchar(100) NOT NULL,
-  `user_avatar` varchar(100) DEFAULT NULL,
-  `nickname` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`comment_id`),
   KEY `comment_post_id` (`comment_post_id`),
-  CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`comment_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE
+  KEY `comment_user_id` (`comment_user_id`),
+  CONSTRAINT `comment_ibfk_1` FOREIGN KEY (`comment_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
+  CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`comment_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Data for the table `comment` */
 
-insert  into `comment`(`comment_id`,`comment_post_id`,`comment_time`,`comment_content`,`user_avatar`,`nickname`) values 
-(1,1,1,'Test for comment',NULL,NULL),
-(2,1,1664418155717,'Test comment','localhost:8080/images/default.jpg','lazy to set name'),
-(3,1,1664419419218,'Test comment','localhost:8080/images/default.jpg','lazy to set name');
+insert  into `comment`(`comment_id`,`comment_post_id`,`comment_user_id`,`comment_time`,`comment_content`) values 
+(1,1,2,1111,'Nice cat'),
+(2,1,1,1998,'Wow ');
 
 /*Table structure for table `friendlist` */
 
@@ -46,11 +46,13 @@ DROP TABLE IF EXISTS `friendlist`;
 CREATE TABLE `friendlist` (
   `list_id` int(5) NOT NULL AUTO_INCREMENT,
   `user_id` int(5) NOT NULL,
-  `friend_username` varchar(20) NOT NULL,
+  `friend_id` int(5) NOT NULL,
   PRIMARY KEY (`list_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `friendlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY `friend_id` (`friend_id`),
+  CONSTRAINT `friendlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `friendlist_ibfk_2` FOREIGN KEY (`friend_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 /*Data for the table `friendlist` */
 
@@ -70,7 +72,7 @@ CREATE TABLE `image` (
 /*Data for the table `image` */
 
 insert  into `image`(`image_id`,`image_post_id`,`image_url`) values 
-(1,1,'localhost:8080/images/741917776/1.jpg');
+(1,1,'http://localhost:8080/images/741917776/1.jpg');
 
 /*Table structure for table `pet` */
 
@@ -87,14 +89,14 @@ CREATE TABLE `pet` (
   PRIMARY KEY (`pet_id`),
   KEY `pet_user_id` (`pet_user_id`),
   CONSTRAINT `pet_ibfk_1` FOREIGN KEY (`pet_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 /*Data for the table `pet` */
 
 insert  into `pet`(`pet_id`,`pet_user_id`,`name`,`pet_image_address`,`category`,`age`,`pet_description`) values 
-(1,1,'UMI','localhost:8080/images/catDefault.jpg','cat',3,NULL),
-(2,1,'MIKO','localhost:8080/images/catDefault.jpg','cat',3,NULL),
-(3,2,'XIXI','localhost:8080/images/dogDefault.jpg','dog',2,NULL);
+(1,1,'UMI','http://localhost:8080/images/catDefault.jpg','cat',3,NULL),
+(2,1,'MIKO','http://localhost:8080/images/catDefault.jpg','cat',3,NULL),
+(3,2,'XIXI','http://localhost:8080/images/dogDefault.jpg','dog',2,NULL);
 
 /*Table structure for table `petimage` */
 
@@ -112,8 +114,8 @@ CREATE TABLE `petimage` (
 /*Data for the table `petimage` */
 
 insert  into `petimage`(`image_id`,`image_pet_id`,`image_url`) values 
-(1,1,'localhost:8080/images/741917776/2.jpg'),
-(2,1,'localhost:8080/images/741917776/1.jpg');
+(1,1,'http://localhost:8080/images/741917776/2.jpg'),
+(2,1,'http://localhost:8080/images/741917776/1.jpg');
 
 /*Table structure for table `post` */
 
@@ -142,6 +144,23 @@ insert  into `post`(`post_id`,`post_user_id`,`post_content`,`post_time`,`topic`,
 (4,1,'TELL ME WHY',NULL,NULL,NULL,0),
 (5,1,'LONG TIME AGO',NULL,NULL,NULL,0);
 
+/*Table structure for table `requestlist` */
+
+DROP TABLE IF EXISTS `requestlist`;
+
+CREATE TABLE `requestlist` (
+  `request_id` int(5) NOT NULL AUTO_INCREMENT,
+  `user_id_from` int(5) NOT NULL,
+  `user_id_to` int(5) NOT NULL,
+  PRIMARY KEY (`request_id`),
+  KEY `user_id_from` (`user_id_from`),
+  KEY `user_id_to` (`user_id_to`),
+  CONSTRAINT `requestlist_ibfk_1` FOREIGN KEY (`user_id_from`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `requestlist_ibfk_2` FOREIGN KEY (`user_id_to`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+
+/*Data for the table `requestlist` */
+
 /*Table structure for table `user` */
 
 DROP TABLE IF EXISTS `user`;
@@ -164,8 +183,8 @@ CREATE TABLE `user` (
 /*Data for the table `user` */
 
 insert  into `user`(`id`,`username`,`password`,`email`,`uuid`,`user_image_address`,`nickname`,`description`,`tag`,`gender`) values 
-(1,'741917776','UBL3wzfOlscd2jT0oxy9QA==',NULL,NULL,'localhost:8080/images/default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1),
-(2,'richard','PDLx+YKFRPT7WSobvjHdrQMb62ozycMd','67252808@qq.com','0d70eb80-603d-43b9-b7d6-8226687f0e5f','localhost:8080/images/default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1);
+(1,'741917776','UBL3wzfOlscd2jT0oxy9QA==',NULL,NULL,'http://localhost:8080/images/default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1),
+(2,'richard','PDLx+YKFRPT7WSobvjHdrQMb62ozycMd','67252808@qq.com','0d70eb80-603d-43b9-b7d6-8226687f0e5f','http://localhost:8080/images/default.jpg','lazy to set name','this gay is very lazy to write decription','Cat',1);
 
 /*Table structure for table `userlove` */
 

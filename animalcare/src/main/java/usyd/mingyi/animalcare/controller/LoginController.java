@@ -23,7 +23,6 @@ import usyd.mingyi.animalcare.utils.Verification;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.websocket.Session;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class LoginController {
     private RedisTemplate redisTemplate;
 
     public final static String FILE_DISK_LOCATION = "D://userdata/";
-    public final static String PROJECT_PREFIX = "localhost:8080/images/";
+    public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
@@ -313,15 +312,12 @@ public class LoginController {
 
         HttpSession session = request.getSession();
         String commentContent = (String) map.get("commentContent");
-        String nickName = (String) session.getAttribute("nickName");
-        String userAvatar = (String) session.getAttribute("userAvatar");
-
+        int id = (int) session.getAttribute("id");
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
-        comment.setNickName(nickName);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
-        comment.setUserAvatar(userAvatar);
+        comment.setUserId(id);
 
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
@@ -331,6 +327,22 @@ public class LoginController {
         }
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
+    }
+
+    @GetMapping("/getCommentsByPostId/{postId}")
+    @ResponseBody
+    public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpServletRequest request) {
+
+
+        if (postService.queryPostById(postId) == null) {
+            return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
+        } else {
+
+            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+            System.out.println(CommentsByPostId);
+
+            return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+        }
     }
 
     @GetMapping("/getPostByUserId/{id}")
@@ -356,21 +368,7 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/getCommentsByPostId/{postId}")
-    @ResponseBody
-    public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpServletRequest request) {
 
-
-        if (postService.queryPostById(postId) == null) {
-            return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
-        } else {
-
-            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
-            System.out.println(CommentsByPostId);
-
-            return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
-        }
-    }
 
     @PostMapping("/pet/newPet")
     public ResponseEntity<Object> addPet(@RequestBody Map map, HttpSession session) {
@@ -414,7 +412,10 @@ public class LoginController {
         } else {
             return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
         }
-        Integer petId = petService.addPet(pet);
+        petService.addPet(pet);
+        Integer petId = pet.getPetId();
+        if(list==null) return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+
         for (String base64Data : list) {
             if (ImageUtil.checkImage(base64Data)) {
                 suffix = ImageUtil.getSuffix(base64Data);
@@ -554,6 +555,14 @@ public class LoginController {
         int id = (int) session.getAttribute("id");
         List<User> allFriends = friendService.getAllFriends(id);
         return new ResponseEntity<>(ResultData.success(allFriends), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends/requests")
+    @ResponseBody
+    public ResponseEntity<Object> getRequestList( HttpSession session) {
+        int id = (int) session.getAttribute("id");
+        List<User> allRequests = friendService.getAllRequests(id);
+        return new ResponseEntity<>(ResultData.success(allRequests), HttpStatus.OK);
     }
 
 

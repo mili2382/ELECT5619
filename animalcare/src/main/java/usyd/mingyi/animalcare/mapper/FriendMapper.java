@@ -18,6 +18,8 @@ public interface FriendMapper {
 
     List<User> getAllFriends(int id);//根据用户id获取用户所有的friends
 
+    List<User> getAllRequests(int id);//根据用户id获取用户所有的request
+
 
 
 }

@@ -44,5 +44,17 @@
         <result property="userImageAddress" column="user_image_address"/>
     </resultMap>
 
+    <select id="getAllRequests" resultMap="requestsInfo">
+        SELECT user_id_from,nickname,description,user_image_address
+        FROM requestlist AS rl
+                 LEFT JOIN user AS u ON rl.user_id_to=u.id
+        WHERE rl.user_id_to = #{id}
+    </select>
+    <resultMap id="requestsInfo" type="User">
+        <result property="id" column="user_id_from"/>
+        <result property="nickName" column="nickname"/>
+        <result property="description" column="description"/>
+        <result property="userImageAddress" column="user_image_address"/>
+    </resultMap>
 
 </mapper>

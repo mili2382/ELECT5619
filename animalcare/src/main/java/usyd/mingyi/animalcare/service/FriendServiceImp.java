@@ -63,5 +63,10 @@ public class FriendServiceImp implements FriendService{
         return friendMapper.getAllFriends(id);
     }
 
+    @Override
+    public List<User> getAllRequests(int id) {
+        return friendMapper.getAllRequests(id);
+    }
+
 
 }

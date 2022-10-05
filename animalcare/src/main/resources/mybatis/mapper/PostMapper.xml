@@ -113,13 +113,13 @@
     </resultMap>
 
     <insert id="addComment" parameterType="Comment">
-        insert into comment(comment_id, comment_post_id, comment_time, comment_content,user_avatar,nickname)
-        values(#{id},#{postId},#{commentTime},#{commentContent},#{userAvatar},#{nickName})
+        insert into comment(comment_id, comment_post_id,comment_user_id,comment_time,comment_content)
+        values(#{id},#{postId},#{userId},#{commentTime},#{commentContent})
     </insert>
 
     <select id="getCommentsByPostId" resultMap="commentsByPostId">
         select*from comment AS co
-            left join user AS u on co.user_avatar = u.user_image_address and co.nickname = u.nickname
+            left join user AS u on co.comment_user_id = u.id
         where comment_post_id = #{postId}
     </select>
 
@@ -129,7 +129,8 @@
         <result property="commentTime" column="comment_time" />
         <result property="commentContent" column="comment_content" />
         <result property="nickName" column="nickname" />
-        <result property="userAvatar" column="user_avatar" />
+        <result property="userAvatar" column="user_image_address" />
+        <result property="userId" column="id" />
     </resultMap>
     
 
