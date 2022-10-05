@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
@@ -56,7 +57,7 @@ public class LoginController {
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<Object> login(@RequestBody User userInfo, HttpServletRequest request) {
+    public ResponseEntity<Object> login(@RequestBody User userInfo, HttpSession session) {
 
         String username = userInfo.getUserName();
         String password = userInfo.getPassword();
@@ -75,21 +76,24 @@ public class LoginController {
 
         if (user != null) {
 
-            HttpSession session = request.getSession();
             session.setAttribute("id", user.getId());
             session.setAttribute("userName", user.getUserName());
             session.setAttribute("nickName", user.getNickName());
             session.setAttribute("userAvatar", user.getUserImageAddress());
-//            redisTemplate.opsForValue().set("user", user, 300, TimeUnit.SECONDS);
-//            if (redisTemplate.hasKey("user")) {
-//                System.out.println(redisTemplate.opsForValue().get("user"));
-//            }
-            return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+            return new ResponseEntity<>(ResultData.success(user.getId()), HttpStatus.OK);
 
         } else {
             return new ResponseEntity<>(ResultData.fail(401, "Password error"), HttpStatus.UNAUTHORIZED);
 
         }
+    }
+    @GetMapping("/logout")
+    @ResponseBody
+    public ResponseEntity<Object> logout(HttpSession session, SessionStatus sessionStatus) {
+        session.invalidate();
+        sessionStatus.setComplete();
+        return new ResponseEntity<>(ResultData.success("Success to logout"), HttpStatus.OK);
+
     }
 
     @PostMapping("/signup")
