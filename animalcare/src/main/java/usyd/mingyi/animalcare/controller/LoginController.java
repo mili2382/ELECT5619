@@ -4,9 +4,11 @@ package usyd.mingyi.animalcare.controller;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
@@ -23,10 +25,7 @@ import usyd.mingyi.animalcare.utils.Verification;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -36,28 +35,28 @@ public class LoginController {
 
     @Autowired
     UserService userService;
-
     @Autowired
     PostService postService;
-
     @Autowired
     PetService petService;
-
     @Autowired
     FriendService friendService;
-
     @Autowired
     private RedisTemplate redisTemplate;
 
     public final static String FILE_DISK_LOCATION = "D://userdata/";
     public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
+    //Redis key keyword for post
+    public final static String REDIS_POST_KEY = "postId: ";
+    public final static String REDIS_POST_USER_KEY = " <-post_userId, postId: ";
+    //Redis key keywords for comment
+    public final static String REDIS_COMMENT_KEY = " <- comment_postId, commentId: ";
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<Object> login(@RequestBody User userInfo, HttpServletRequest request) {
-
 
         String username = userInfo.getUserName();
         String password = userInfo.getPassword();
@@ -69,12 +68,10 @@ public class LoginController {
             String decode = JasyptEncryptorUtils.decode(encryptedPassword);
             if (!decode.equals(password)) {
                 return new ResponseEntity<>(ResultData.fail(401, "Password error"), HttpStatus.UNAUTHORIZED);
-
             }
         }
 
         User user = userService.queryUser(username, encryptedPassword);
-
 
         if (user != null) {
 
@@ -83,18 +80,16 @@ public class LoginController {
             session.setAttribute("userName", user.getUserName());
             session.setAttribute("nickName", user.getNickName());
             session.setAttribute("userAvatar", user.getUserImageAddress());
-            redisTemplate.opsForValue().set("user", user, 300, TimeUnit.SECONDS);
-            if (redisTemplate.hasKey("user")) {
-                System.out.println(redisTemplate.opsForValue().get("user"));
-            }
+//            redisTemplate.opsForValue().set("user", user, 300, TimeUnit.SECONDS);
+//            if (redisTemplate.hasKey("user")) {
+//                System.out.println(redisTemplate.opsForValue().get("user"));
+//            }
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
 
         } else {
             return new ResponseEntity<>(ResultData.fail(401, "Password error"), HttpStatus.UNAUTHORIZED);
 
         }
-
-
     }
 
     @PostMapping("/signup")
@@ -149,7 +144,6 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.fail(201, "No code in the system"), HttpStatus.CREATED);
     }
 
-
     @PostMapping("/edit")
     @ResponseBody
     public ResponseEntity<Object> updateUserInfo(@RequestBody User userInfo, HttpSession session) {
@@ -180,10 +174,7 @@ public class LoginController {
             userService.updateUser(userInfo);
         }
         return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
-
-
     }
-
 
     @PostMapping("/post/newPost")
     @ResponseBody
@@ -238,6 +229,11 @@ public class LoginController {
             }
         }
 
+        // Store new Post to Redis
+        ValueOperations operations = redisTemplate.opsForValue();
+        operations.set(REDIS_POST_KEY + postId, post, 20, TimeUnit.MINUTES);
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 20, TimeUnit.MINUTES);
+
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
     }
@@ -245,6 +241,13 @@ public class LoginController {
     @GetMapping("/getPosts")
     @ResponseBody
     public ResponseEntity<Object> getPosts(@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
+
+//        Set<String> keys = redisTemplate.keys(REDIS_POST_KEY.concat("*"));
+//        if(!keys.isEmpty()){
+//            List<Post> allPosts = redisTemplate.opsForValue().multiGet(keys);
+//            return new ResponseEntity<>(ResultData.success(allPosts),HttpStatus.OK);
+//        }
+
         List<Post> allPosts = postService.getAllPosts(currPage, pageSize);
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
@@ -260,17 +263,25 @@ public class LoginController {
     @GetMapping("/getPost/{postId}")
     @ResponseBody
     public ResponseEntity<Object> getPost(@PathVariable int postId, HttpServletRequest request) {
+        if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
+            Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
+            return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
 
-        HttpSession session = request.getSession();
-        int id = (int) session.getAttribute("id");
-        Post post = postService.queryPostById(postId);
-        if (post != null) {
-            post = postService.queryPostById(postId);
-            boolean b = postService.checkLoved(id, postId);
-            post.setLoved(b);
-            return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
+        }else {
+            HttpSession session = request.getSession();
+            int id = (int) session.getAttribute("id");
+            Post post = postService.queryPostById(postId);
+
+            if (post != null) {
+                post = postService.queryPostById(postId);
+                boolean b = postService.checkLoved(id, postId);
+                post.setLoved(b);
+                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,20,TimeUnit.MINUTES);
+
+                return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
+            }
         }
     }
 
@@ -279,7 +290,6 @@ public class LoginController {
     public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
         postService.love(id, postId);
-        //postService.lovePlus(postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 
@@ -287,7 +297,6 @@ public class LoginController {
     public ResponseEntity<Object> cancelLove(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
         postService.cancelLove(id, postId);
-        //postService.loveMinus(postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 
@@ -300,10 +309,43 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "Fail to delete post, No such post found"), HttpStatus.CREATED);
         } else {
             System.out.println("Delete post" + postId);
-            //postService.deletePost(postId, id);
+            postService.deletePost(postId, id);
+            if(redisTemplate.hasKey(REDIS_POST_KEY + postId)){
+                redisTemplate.delete(REDIS_POST_KEY + postId);
+            }
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 
+    }
+
+    @GetMapping("/getPostByUserId/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        User user = userService.queryUserById(userId);
+        if (user == null) {
+            return new ResponseEntity<>(ResultData.fail(201, "No such user"), HttpStatus.CREATED);
+        } else {
+
+            if(!redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).isEmpty()) {
+                Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
+                List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
+
+                return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
+
+            }else {
+                List<Post> PostsByUserId = postService.getPostByUserId(userId);
+
+                for(Post post: PostsByUserId) {
+                    ValueOperations operations = redisTemplate.opsForValue();
+                    operations.set(REDIS_POST_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
+                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
+                }
+
+                return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
+            }
+        }
     }
 
     @PostMapping("/Post/addComment/{postId}")
@@ -319,12 +361,18 @@ public class LoginController {
         comment.setCommentTime(System.currentTimeMillis());
         comment.setUserId(id);
 
+
+
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
         }
         if (postService.addComment(comment) != 1) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
         }
+
+        // Store new comment to Redis
+        ValueOperations operations = redisTemplate.opsForValue();
+        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, 20, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
@@ -338,36 +386,25 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
 
-            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
-            System.out.println(CommentsByPostId);
+            if(!redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).isEmpty()){
+                Set<String> keys = redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*"));
+                List<Comment> CommentsByPostId = (List<Comment>) redisTemplate.opsForValue().multiGet(keys);
 
-            return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+                return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+            }else {
+                List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+
+                for(Comment comment: CommentsByPostId) {
+                    ValueOperations operations = redisTemplate.opsForValue();
+                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, 20, TimeUnit.MINUTES);
+                }
+
+                return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+            }
+
+
         }
     }
-
-    @GetMapping("/getPostByUserId/{id}")
-    @ResponseBody
-    public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId, HttpServletRequest request) {
-
-        HttpSession session = request.getSession();
-
-        User user = userService.queryUserById(userId);
-        if (user == null) {
-            return new ResponseEntity<>(ResultData.fail(201, "No such user"), HttpStatus.CREATED);
-        } else {
-//            List<Post> tempList = postService.getPostByUserId(userId);
-//            int i = 0;
-//            for(Post post: tempList) {
-//                post = ImageUtil.replaceUrl(postService.getPostByUserId(userId).get(i), FILE_DISK_LOCATION);
-//                PostsByUserId.add(post);
-//                i++;
-//            }
-            List<Post> PostsByUserId = postService.getPostByUserId(userId);
-
-            return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
-        }
-    }
-
 
 
     @PostMapping("/pet/newPet")
