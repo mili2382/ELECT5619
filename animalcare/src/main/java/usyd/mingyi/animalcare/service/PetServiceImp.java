@@ -36,7 +36,7 @@ public class PetServiceImp implements  PetService{
 
     @Override
     public int addImage(int imagePetId, String imageUrl) {
-        return 0;
+        return petMapper.addImage(imagePetId,imageUrl);
     }
 
 }
