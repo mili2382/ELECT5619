@@ -45,7 +45,7 @@ public class LoginController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public final static String FILE_DISK_LOCATION = "D://userdata/";
+    public final static String FILE_DISK_LOCATION = "/Users/richard/Doc/github/images/";
     public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
     //Redis key keyword for post
