@@ -235,12 +235,8 @@ public class LoginController {
 
         // Store new Post to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(REDIS_POST_KEY + postId, post, 20, TimeUnit.MINUTES);
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 20, TimeUnit.MINUTES);
-        List<Post> PostsByUserId = postService.getPostByUserId(post.getUserId());
-        for(Post p: PostsByUserId) {
-            redisTemplate.opsForValue().set(p.getUserId() + REDIS_POST_USER_KEY + p.getPostId() , p, 20, TimeUnit.MINUTES);
-        }
+        operations.set(REDIS_POST_KEY + postId, post, 300, TimeUnit.MINUTES);
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 300, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -265,15 +261,20 @@ public class LoginController {
     @GetMapping("/getPost/{postId}")
     @ResponseBody
     public ResponseEntity<Object> getPost(@PathVariable int postId, HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        int id = (int) session.getAttribute("id");
+
         if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
             Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
-            redisTemplate.expire(REDIS_POST_KEY + postId, 20, TimeUnit.MINUTES);
+            if(post != null) {
+                redisTemplate.expire(REDIS_POST_KEY + postId, 20, TimeUnit.MINUTES);
+                boolean b = postService.checkLoved(id,postId);
+                post.setLoved(b);
+            }
 
             return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
-
         }else {
-            HttpSession session = request.getSession();
-            int id = (int) session.getAttribute("id");
             Post post = postService.queryPostById(postId);
 
             if (post != null) {
@@ -316,6 +317,7 @@ public class LoginController {
             postService.deletePost(postId, id);
             if(redisTemplate.hasKey(REDIS_POST_KEY + postId)){
                 redisTemplate.delete(REDIS_POST_KEY + postId);
+                redisTemplate.delete(post.getUserId() + REDIS_POST_USER_KEY + postId);
             }
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
@@ -332,7 +334,7 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "No such user"), HttpStatus.CREATED);
         } else {
 
-            if(!redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).isEmpty()) {
+            if(redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).size() == postService.getPostByUserId(userId).size()) {
                 Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
                 List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
                 for(Post post: PostByUserId) {
@@ -377,10 +379,6 @@ public class LoginController {
         // Store new comment to Redis
         ValueOperations operations = redisTemplate.opsForValue();
         operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, 20, TimeUnit.MINUTES);
-        List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
-        for(Comment c:CommentsByPostId) {
-            redisTemplate.opsForValue().set(postId + REDIS_COMMENT_KEY +c.getId(), c, 20, TimeUnit.MINUTES);
-        }
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
@@ -393,7 +391,7 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
 
-            if(!redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).isEmpty()){
+            if(redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).size() == postService.getCommentsByPostId(postId).size()){
                 Set<String> keys = redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*"));
                 List<Comment> CommentsByPostId = (List<Comment>) redisTemplate.opsForValue().multiGet(keys);
 
