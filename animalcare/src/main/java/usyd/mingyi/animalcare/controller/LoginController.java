@@ -48,10 +48,9 @@ public class LoginController {
     public final static String FILE_DISK_LOCATION = "D://userdata/";
     public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
-    //Redis key keyword for post
+    //Redis key keyword for post and comment
     public final static String REDIS_POST_KEY = "postId: ";
     public final static String REDIS_POST_USER_KEY = " <-post_userId, postId: ";
-    //Redis key keywords for comment
     public final static String REDIS_COMMENT_KEY = " <- comment_postId, commentId: ";
     public final static int TIMEOUT = 300;
 
@@ -364,11 +363,13 @@ public class LoginController {
         HttpSession session = request.getSession();
         String commentContent = (String) map.get("commentContent");
         int id = (int) session.getAttribute("id");
+        String userAvatar = (String) session.getAttribute("userAvatar");
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
         comment.setUserId(id);
+        comment.setUserAvatar(userAvatar);
 
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
