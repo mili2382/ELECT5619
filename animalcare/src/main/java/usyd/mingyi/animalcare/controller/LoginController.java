@@ -237,6 +237,10 @@ public class LoginController {
         ValueOperations operations = redisTemplate.opsForValue();
         operations.set(REDIS_POST_KEY + postId, post, 20, TimeUnit.MINUTES);
         operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 20, TimeUnit.MINUTES);
+        List<Post> PostsByUserId = postService.getPostByUserId(post.getUserId());
+        for(Post p: PostsByUserId) {
+            redisTemplate.opsForValue().set(p.getUserId() + REDIS_POST_USER_KEY + p.getPostId() , p, 20, TimeUnit.MINUTES);
+        }
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -245,12 +249,6 @@ public class LoginController {
     @GetMapping("/getPosts")
     @ResponseBody
     public ResponseEntity<Object> getPosts(@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
-
-//        Set<String> keys = redisTemplate.keys(REDIS_POST_KEY.concat("*"));
-//        if(!keys.isEmpty()){
-//            List<Post> allPosts = redisTemplate.opsForValue().multiGet(keys);
-//            return new ResponseEntity<>(ResultData.success(allPosts),HttpStatus.OK);
-//        }
 
         List<Post> allPosts = postService.getAllPosts(currPage, pageSize);
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
@@ -269,6 +267,8 @@ public class LoginController {
     public ResponseEntity<Object> getPost(@PathVariable int postId, HttpServletRequest request) {
         if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
             Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
+            redisTemplate.expire(REDIS_POST_KEY + postId, 20, TimeUnit.MINUTES);
+
             return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
 
         }else {
@@ -335,7 +335,9 @@ public class LoginController {
             if(!redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).isEmpty()) {
                 Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
                 List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
-
+                for(Post post: PostByUserId) {
+                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), 20, TimeUnit.MINUTES);
+                }
                 return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
 
             }else {
@@ -365,8 +367,6 @@ public class LoginController {
         comment.setCommentTime(System.currentTimeMillis());
         comment.setUserId(id);
 
-
-
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
         }
@@ -377,6 +377,10 @@ public class LoginController {
         // Store new comment to Redis
         ValueOperations operations = redisTemplate.opsForValue();
         operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, 20, TimeUnit.MINUTES);
+        List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+        for(Comment c:CommentsByPostId) {
+            redisTemplate.opsForValue().set(postId + REDIS_COMMENT_KEY +c.getId(), c, 20, TimeUnit.MINUTES);
+        }
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
@@ -384,8 +388,7 @@ public class LoginController {
     @GetMapping("/getCommentsByPostId/{postId}")
     @ResponseBody
     public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpServletRequest request) {
-
-
+        
         if (postService.queryPostById(postId) == null) {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
@@ -405,8 +408,6 @@ public class LoginController {
 
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
             }
-
-
         }
     }
 
