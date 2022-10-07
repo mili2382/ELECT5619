@@ -53,6 +53,7 @@ public class LoginController {
     public final static String REDIS_POST_USER_KEY = " <-post_userId, postId: ";
     //Redis key keywords for comment
     public final static String REDIS_COMMENT_KEY = " <- comment_postId, commentId: ";
+    public final static int TIMEOUT = 300;
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
@@ -235,8 +236,8 @@ public class LoginController {
 
         // Store new Post to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(REDIS_POST_KEY + postId, post, 300, TimeUnit.MINUTES);
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 300, TimeUnit.MINUTES);
+        operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, TIMEOUT, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -268,7 +269,7 @@ public class LoginController {
         if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
             Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
             if(post != null) {
-                redisTemplate.expire(REDIS_POST_KEY + postId, 20, TimeUnit.MINUTES);
+                redisTemplate.expire(REDIS_POST_KEY + postId, TIMEOUT, TimeUnit.MINUTES);
                 boolean b = postService.checkLoved(id,postId);
                 post.setLoved(b);
             }
@@ -281,7 +282,7 @@ public class LoginController {
                 post = postService.queryPostById(postId);
                 boolean b = postService.checkLoved(id, postId);
                 post.setLoved(b);
-                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,20,TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,TIMEOUT,TimeUnit.MINUTES);
 
                 return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
             } else {
@@ -338,7 +339,7 @@ public class LoginController {
                 Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
                 List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
                 for(Post post: PostByUserId) {
-                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), 20, TimeUnit.MINUTES);
+                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), TIMEOUT, TimeUnit.MINUTES);
                 }
                 return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
 
@@ -347,8 +348,8 @@ public class LoginController {
 
                 for(Post post: PostsByUserId) {
                     ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(REDIS_POST_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
-                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
+                    operations.set(REDIS_POST_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
+                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
                 }
 
                 return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
@@ -378,7 +379,7 @@ public class LoginController {
 
         // Store new comment to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, 20, TimeUnit.MINUTES);
+        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
@@ -401,7 +402,7 @@ public class LoginController {
 
                 for(Comment comment: CommentsByPostId) {
                     ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, 20, TimeUnit.MINUTES);
+                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
                 }
 
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
