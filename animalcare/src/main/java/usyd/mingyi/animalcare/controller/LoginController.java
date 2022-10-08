@@ -45,7 +45,7 @@ public class LoginController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public final static String FILE_DISK_LOCATION = "/Users/richard/Doc/github/images/";
+    public final static String FILE_DISK_LOCATION = "/Volumes/Study/5619/database/images/";
     public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
     //Redis key keyword for post and comment
@@ -235,8 +235,8 @@ public class LoginController {
 
         // Store new Post to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, TIMEOUT, TimeUnit.MINUTES);
+        operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);//used for get Post by post Id
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, TIMEOUT, TimeUnit.MINUTES);// used for get posts by user id
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -364,12 +364,15 @@ public class LoginController {
         String commentContent = (String) map.get("commentContent");
         int id = (int) session.getAttribute("id");
         String userAvatar = (String) session.getAttribute("userAvatar");
+        String userName = (String) session.getAttribute("userName");
+
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
         comment.setUserId(id);
         comment.setUserAvatar(userAvatar);
+        comment.setUserName(userName);
 
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
