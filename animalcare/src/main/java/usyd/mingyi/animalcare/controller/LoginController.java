@@ -265,16 +265,16 @@ public class LoginController {
         HttpSession session = request.getSession();
         int id = (int) session.getAttribute("id");
 
-        if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
-            Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
-            if(post != null) {
-                redisTemplate.expire(REDIS_POST_KEY + postId, TIMEOUT, TimeUnit.MINUTES);
-                boolean b = postService.checkLoved(id,postId);
-                post.setLoved(b);
-            }
-
-            return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
-        }else {
+//        if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
+//            Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
+//            if(post != null) {
+//                redisTemplate.expire(REDIS_POST_KEY + postId, TIMEOUT, TimeUnit.MINUTES);
+//                boolean b = postService.checkLoved(id,postId);
+//                post.setLoved(b);
+//            }
+//
+//            return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
+//        }else {
             Post post = postService.queryPostById(postId);
 
             if (post != null) {
@@ -287,7 +287,7 @@ public class LoginController {
             } else {
                 return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
             }
-        }
+//        }
     }
 
 
@@ -334,15 +334,15 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "No such user"), HttpStatus.CREATED);
         } else {
 
-            if(redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).size() == postService.getPostByUserId(userId).size()) {
-                Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
-                List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
-                for(Post post: PostByUserId) {
-                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), TIMEOUT, TimeUnit.MINUTES);
-                }
-                return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
-
-            }else {
+//            if(redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).size() == postService.getPostByUserId(userId).size()) {
+//                Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
+//                List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
+//                for(Post post: PostByUserId) {
+//                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), TIMEOUT, TimeUnit.MINUTES);
+//                }
+//                return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
+//
+//            }else {
                 List<Post> PostsByUserId = postService.getPostByUserId(userId);
 
                 for(Post post: PostsByUserId) {
@@ -352,7 +352,7 @@ public class LoginController {
                 }
 
                 return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
-            }
+//            }
         }
     }
 
