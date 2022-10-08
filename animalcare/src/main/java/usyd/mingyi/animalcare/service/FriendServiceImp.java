@@ -68,5 +68,15 @@ public class FriendServiceImp implements FriendService{
         return friendMapper.getAllRequests(id);
     }
 
+    @Override
+    public int checkFriendshipStatus(int fromId, int toId) {
+        // has already been friend
+        if (friendMapper.isFriend(fromId, toId)) return 1;
+        // has already sent friend request
+        if (friendMapper.checkExistRequest(fromId, toId) > 0) return 0;
+        // has neither been friend nor sent friend request
+        return -1;
+    }
+
 
 }

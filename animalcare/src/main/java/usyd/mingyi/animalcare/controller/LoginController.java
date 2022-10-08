@@ -541,6 +541,23 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.success(postsByKeywords), HttpStatus.OK);
     }
 
+    @GetMapping("/friends/status/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getFriendshipStatus(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  {
+            return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+        }
+        int result = friendService.checkFriendshipStatus(fromId, toId);
+        if (result == 1) {
+            return new ResponseEntity<>(ResultData.success("Friend"), HttpStatus.OK);
+        } else if (result == 0) {
+            return new ResponseEntity<>(ResultData.success("Requesting"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(ResultData.success("Nothing"), HttpStatus.OK);
+        }
+    }
+
     @GetMapping("/friends/{id}")
     @ResponseBody
     public ResponseEntity<Object> sendFriendRequest(@PathVariable("id") int toId, HttpSession session) {
@@ -560,7 +577,6 @@ public class LoginController {
         }else {
             return new ResponseEntity<>(ResultData.fail(201,"You are already friends"), HttpStatus.CREATED);
         }
-
     }
 
     @PostMapping("/friends/{id}")
@@ -570,6 +586,7 @@ public class LoginController {
         if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
 
         int request = friendService.acceptFriendRequest(fromId, toId);
+        System.out.println(request);
         if(request>=1){
             return new ResponseEntity<>(ResultData.success("Success to add friend"), HttpStatus.OK);
         }else {
@@ -606,6 +623,19 @@ public class LoginController {
         List<User> allRequests = friendService.getAllRequests(id);
         return new ResponseEntity<>(ResultData.success(allRequests), HttpStatus.OK);
     }
+
+//    @GetMapping("/search/trendingPosts")
+//    @ResponseBody
+//    public ResponseEntity<Object> getTrendingPosts() {
+//        List<Post> trendingPosts = new ArrayList<>();
+//        for (int i = 0; i < 20; i++) {
+//            Post p = new Post();
+//            p.setTopic("my topic");
+//            p.setPostId(i);
+//            trendingPosts.add(p);
+//        }
+//        return new ResponseEntity<>(ResultData.success(trendingPosts), HttpStatus.OK);
+//    }
 
 
 }
