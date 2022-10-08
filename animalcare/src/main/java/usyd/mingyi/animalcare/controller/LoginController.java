@@ -48,11 +48,11 @@ public class LoginController {
     public final static String FILE_DISK_LOCATION = "/Users/richard/Doc/github/images/";
     public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
 
-    //Redis key keyword for post
+    //Redis key keyword for post and comment
     public final static String REDIS_POST_KEY = "postId: ";
     public final static String REDIS_POST_USER_KEY = " <-post_userId, postId: ";
-    //Redis key keywords for comment
     public final static String REDIS_COMMENT_KEY = " <- comment_postId, commentId: ";
+    public final static int TIMEOUT = 300;
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
@@ -235,8 +235,8 @@ public class LoginController {
 
         // Store new Post to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(REDIS_POST_KEY + postId, post, 300, TimeUnit.MINUTES);
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, 300, TimeUnit.MINUTES);
+        operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, TIMEOUT, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -268,7 +268,7 @@ public class LoginController {
         if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
             Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
             if(post != null) {
-                redisTemplate.expire(REDIS_POST_KEY + postId, 20, TimeUnit.MINUTES);
+                redisTemplate.expire(REDIS_POST_KEY + postId, TIMEOUT, TimeUnit.MINUTES);
                 boolean b = postService.checkLoved(id,postId);
                 post.setLoved(b);
             }
@@ -281,7 +281,7 @@ public class LoginController {
                 post = postService.queryPostById(postId);
                 boolean b = postService.checkLoved(id, postId);
                 post.setLoved(b);
-                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,20,TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,TIMEOUT,TimeUnit.MINUTES);
 
                 return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
             } else {
@@ -338,7 +338,7 @@ public class LoginController {
                 Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
                 List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
                 for(Post post: PostByUserId) {
-                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), 20, TimeUnit.MINUTES);
+                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), TIMEOUT, TimeUnit.MINUTES);
                 }
                 return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
 
@@ -347,8 +347,8 @@ public class LoginController {
 
                 for(Post post: PostsByUserId) {
                     ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(REDIS_POST_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
-                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, 20, TimeUnit.MINUTES);
+                    operations.set(REDIS_POST_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
+                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
                 }
 
                 return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
@@ -363,11 +363,13 @@ public class LoginController {
         HttpSession session = request.getSession();
         String commentContent = (String) map.get("commentContent");
         int id = (int) session.getAttribute("id");
+        String userAvatar = (String) session.getAttribute("userAvatar");
         Comment comment = new Comment();
         comment.setCommentContent(commentContent);
         comment.setPostId(postId);
         comment.setCommentTime(System.currentTimeMillis());
         comment.setUserId(id);
+        comment.setUserAvatar(userAvatar);
 
         if (commentContent == null) {
             return new ResponseEntity<>(ResultData.fail(201, "Comment can not be null"), HttpStatus.CREATED);
@@ -378,7 +380,7 @@ public class LoginController {
 
         // Store new comment to Redis
         ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, 20, TimeUnit.MINUTES);
+        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
 
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
@@ -401,7 +403,7 @@ public class LoginController {
 
                 for(Comment comment: CommentsByPostId) {
                     ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, 20, TimeUnit.MINUTES);
+                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
                 }
 
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
@@ -539,6 +541,23 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.success(postsByKeywords), HttpStatus.OK);
     }
 
+    @GetMapping("/friends/status/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getFriendshipStatus(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  {
+            return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+        }
+        int result = friendService.checkFriendshipStatus(fromId, toId);
+        if (result == 1) {
+            return new ResponseEntity<>(ResultData.success("Friend"), HttpStatus.OK);
+        } else if (result == 0) {
+            return new ResponseEntity<>(ResultData.success("Requesting"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(ResultData.success("Nothing"), HttpStatus.OK);
+        }
+    }
+
     @GetMapping("/friends/{id}")
     @ResponseBody
     public ResponseEntity<Object> sendFriendRequest(@PathVariable("id") int toId, HttpSession session) {
@@ -558,7 +577,6 @@ public class LoginController {
         }else {
             return new ResponseEntity<>(ResultData.fail(201,"You are already friends"), HttpStatus.CREATED);
         }
-
     }
 
     @PostMapping("/friends/{id}")
@@ -568,6 +586,7 @@ public class LoginController {
         if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
 
         int request = friendService.acceptFriendRequest(fromId, toId);
+        System.out.println(request);
         if(request>=1){
             return new ResponseEntity<>(ResultData.success("Success to add friend"), HttpStatus.OK);
         }else {
@@ -604,6 +623,19 @@ public class LoginController {
         List<User> allRequests = friendService.getAllRequests(id);
         return new ResponseEntity<>(ResultData.success(allRequests), HttpStatus.OK);
     }
+
+//    @GetMapping("/search/trendingPosts")
+//    @ResponseBody
+//    public ResponseEntity<Object> getTrendingPosts() {
+//        List<Post> trendingPosts = new ArrayList<>();
+//        for (int i = 0; i < 20; i++) {
+//            Post p = new Post();
+//            p.setTopic("my topic");
+//            p.setPostId(i);
+//            trendingPosts.add(p);
+//        }
+//        return new ResponseEntity<>(ResultData.success(trendingPosts), HttpStatus.OK);
+//    }
 
 
 }
