@@ -55,7 +55,8 @@ public interface FriendMapper {
     * @return: boolean 
     * @Author: Mingyi Li
     * @Date: 2022/10/5 
-    */ 
+    */
+    
     boolean isFriend(int fromId,int toId);
     /** 
     * @Description:  根据用户id获取用户所有的friends
@@ -76,5 +77,14 @@ public interface FriendMapper {
     List<User> getAllRequests(int id);
 
 
+    /** 
+    * @Description:
+    * @Param: [fromId, toId] 
+    * @return: int 
+    * @Author: Mingyi Li
+    * @Date: 2022/10/8 
+    */ 
+    int deleteFromFriendList(int fromId,int toId);
+    
 
 }

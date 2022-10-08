@@ -624,6 +624,20 @@ public class LoginController {
         return new ResponseEntity<>(ResultData.success(allRequests), HttpStatus.OK);
     }
 
+    @DeleteMapping("/friends/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> deleteFriendFromList(@PathVariable("id") int toId, HttpSession session) {
+        int fromId = (int) session.getAttribute("id");
+        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Can not delete yourself"), HttpStatus.CREATED);
+
+        int request = friendService.deleteFromFriendList(fromId, toId);
+        if(request>=1){
+            return new ResponseEntity<>(ResultData.success("Success to delete friend"), HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(ResultData.fail(201,"Fail to delete friend"), HttpStatus.CREATED);
+        }
+    }
+
 //    @GetMapping("/search/trendingPosts")
 //    @ResponseBody
 //    public ResponseEntity<Object> getTrendingPosts() {

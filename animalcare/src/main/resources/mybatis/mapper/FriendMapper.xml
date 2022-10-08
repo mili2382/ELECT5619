@@ -26,6 +26,10 @@
         delete from requestlist where user_id_from=#{fromId} and user_id_to=#{toId}
     </delete>
 
+    <delete id="deleteFromFriendList">
+        delete from friendlist where user_id =#{fromId} and friend_id=#{toId}
+    </delete>
+
     <insert id="addToFriendList">
         insert into friendlist(user_id,friend_id)values (#{fromId},#{toId})
     </insert>

@@ -39,6 +39,7 @@ public class FriendServiceImp implements FriendService{
     }
 
     @Override
+    @Transactional
     public int acceptFriendRequest(int fromId, int toId) {
         if(friendMapper.checkExistRequest(toId,fromId)>0&&!friendMapper.isFriend(fromId,toId)){
             friendMapper.addToFriendList(fromId,toId);
@@ -69,6 +70,7 @@ public class FriendServiceImp implements FriendService{
     }
 
     @Override
+    @Transactional
     public int checkFriendshipStatus(int fromId, int toId) {
         // has already been friend
         if (friendMapper.isFriend(fromId, toId)) return 1;
@@ -76,6 +78,18 @@ public class FriendServiceImp implements FriendService{
         if (friendMapper.checkExistRequest(fromId, toId) > 0) return 0;
         // has neither been friend nor sent friend request
         return -1;
+    }
+
+    @Override
+    @Transactional
+    public int deleteFromFriendList(int fromId, int toId) {
+        int delete = friendMapper.deleteFromFriendList(fromId, toId);
+        int deleteReverse = friendMapper.deleteFromFriendList(toId, fromId);
+           if(delete==1&&deleteReverse==1){
+               return 1;
+           }else {
+               return -1;
+           }
     }
 
 
