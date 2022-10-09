@@ -8,9 +8,9 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import usyd.mingyi.animalcare.config.ProjectProperties;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
 import usyd.mingyi.animalcare.pojo.Post;
@@ -44,9 +44,8 @@ public class LoginController {
     FriendService friendService;
     @Autowired
     private RedisTemplate redisTemplate;
-
-    public final static String FILE_DISK_LOCATION = "/Volumes/Study/5619/database/images/";
-    public final static String PROJECT_PREFIX = "http://localhost:8080/images/";
+    @Autowired
+    ProjectProperties projectProperties;
 
     //Redis key keyword for post and comment
     public final static String REDIS_POST_KEY = "postId: ";
@@ -87,6 +86,7 @@ public class LoginController {
 
         }
     }
+
     @GetMapping("/logout")
     @ResponseBody
     public ResponseEntity<Object> logout(HttpSession session, SessionStatus sessionStatus) {
@@ -151,6 +151,9 @@ public class LoginController {
     @PostMapping("/edit")
     @ResponseBody
     public ResponseEntity<Object> updateUserInfo(@RequestBody User userInfo, HttpSession session) {
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
         int id = (int) session.getAttribute("id");
         String userName = (String) session.getAttribute("userName");
         userInfo.setId(id);
@@ -160,10 +163,10 @@ public class LoginController {
             String suffix = ImageUtil.getSuffix(avatarUrl);
             String data = ImageUtil.getData(avatarUrl);
             String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
-            String path = FILE_DISK_LOCATION + userName; //文件路径
+            String path = fileDiskLocation + userName; //文件路径
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                userInfo.setUserImageAddress(PROJECT_PREFIX + userName + "/" + tempFileName);
+                userInfo.setUserImageAddress(projectPrefix + userName + "/" + tempFileName);
                 userService.updateUser(userInfo);
                 //删掉本地之前的头像（未写）
             } catch (Exception e) {
@@ -183,7 +186,9 @@ public class LoginController {
     @PostMapping("/post/newPost")
     @ResponseBody
     public ResponseEntity<Object> upLoadPost(@RequestBody Map map, HttpServletRequest request) {
-
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
         String data = "";//实体部分数
         String suffix = "";//图片后缀，用以识别哪种格式数据
 
@@ -220,11 +225,11 @@ public class LoginController {
             String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
 
 
-            String path = FILE_DISK_LOCATION + userName; //文件路径
+            String path = fileDiskLocation + userName; //文件路径
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                postService.addImage(postId, PROJECT_PREFIX + userName + "/" + tempFileName);
+                postService.addImage(postId, projectPrefix + userName + "/" + tempFileName);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -236,7 +241,7 @@ public class LoginController {
         // Store new Post to Redis
         ValueOperations operations = redisTemplate.opsForValue();
         operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);//used for get Post by post Id
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId , post, TIMEOUT, TimeUnit.MINUTES);// used for get posts by user id
+        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);// used for get posts by user id
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -249,6 +254,7 @@ public class LoginController {
         List<Post> allPosts = postService.getAllPosts(currPage, pageSize);
         return new ResponseEntity<>(ResultData.success(allPosts), HttpStatus.OK);
     }
+
     @GetMapping("/getPostsOrderByLove")
     @ResponseBody
     public ResponseEntity<Object> getPostsOrderByLove(@RequestParam("currPage") int currPage, @RequestParam("pageSize") int pageSize) {
@@ -275,18 +281,18 @@ public class LoginController {
 //
 //            return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
 //        }else {
-            Post post = postService.queryPostById(postId);
+        Post post = postService.queryPostById(postId);
 
-            if (post != null) {
-                post = postService.queryPostById(postId);
-                boolean b = postService.checkLoved(id, postId);
-                post.setLoved(b);
-                redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post,TIMEOUT,TimeUnit.MINUTES);
+        if (post != null) {
+            post = postService.queryPostById(postId);
+            boolean b = postService.checkLoved(id, postId);
+            post.setLoved(b);
+            redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);
 
-                return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
-            }
+            return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
+        }
 //        }
     }
 
@@ -315,7 +321,7 @@ public class LoginController {
         } else {
             System.out.println("Delete post" + postId);
             postService.deletePost(postId, id);
-            if(redisTemplate.hasKey(REDIS_POST_KEY + postId)){
+            if (redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
                 redisTemplate.delete(REDIS_POST_KEY + postId);
                 redisTemplate.delete(post.getUserId() + REDIS_POST_USER_KEY + postId);
             }
@@ -343,15 +349,15 @@ public class LoginController {
 //                return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
 //
 //            }else {
-                List<Post> PostsByUserId = postService.getPostByUserId(userId);
+            List<Post> PostsByUserId = postService.getPostByUserId(userId);
 
-                for(Post post: PostsByUserId) {
-                    ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(REDIS_POST_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
-                    operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
-                }
+            for (Post post : PostsByUserId) {
+                ValueOperations operations = redisTemplate.opsForValue();
+                operations.set(REDIS_POST_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
+                operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
+            }
 
-                return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
+            return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
 //            }
         }
     }
@@ -391,22 +397,22 @@ public class LoginController {
     @GetMapping("/getCommentsByPostId/{postId}")
     @ResponseBody
     public ResponseEntity<Object> getCommentsByPostId(@PathVariable("postId") int postId, HttpServletRequest request) {
-        
+
         if (postService.queryPostById(postId) == null) {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
 
-            if(redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).size() == postService.getCommentsByPostId(postId).size()){
+            if (redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).size() == postService.getCommentsByPostId(postId).size()) {
                 Set<String> keys = redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*"));
                 List<Comment> CommentsByPostId = (List<Comment>) redisTemplate.opsForValue().multiGet(keys);
 
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
-            }else {
+            } else {
                 List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
 
-                for(Comment comment: CommentsByPostId) {
+                for (Comment comment : CommentsByPostId) {
                     ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(postId + REDIS_COMMENT_KEY +comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
+                    operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
                 }
 
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
@@ -417,6 +423,9 @@ public class LoginController {
 
     @PostMapping("/pet/newPet")
     public ResponseEntity<Object> addPet(@RequestBody Map map, HttpSession session) {
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
         int id = (int) session.getAttribute("id");
         String userName = (String) session.getAttribute("userName");
         String data = "";//实体部分数
@@ -434,9 +443,9 @@ public class LoginController {
 
         if (StringUtil.isNullOrEmpty(avatarUrl)) {
             if (category.equals("dog")) {
-                pet.setPetImageAddress(PROJECT_PREFIX + "dogDefault.jpg");
+                pet.setPetImageAddress(projectPrefix + "dogDefault.jpg");
             } else {
-                pet.setPetImageAddress(PROJECT_PREFIX + "catDefault.jpg");
+                pet.setPetImageAddress(projectPrefix + "catDefault.jpg");
             }
 
 
@@ -444,10 +453,10 @@ public class LoginController {
             suffix = ImageUtil.getSuffix(avatarUrl);
             data = ImageUtil.getData(avatarUrl);
             String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
-            String path = FILE_DISK_LOCATION + userName; //文件路径
+            String path = fileDiskLocation + userName; //文件路径
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                pet.setPetImageAddress(PROJECT_PREFIX + userName + "/" + tempFileName);
+                pet.setPetImageAddress(projectPrefix + userName + "/" + tempFileName);
 
 
             } catch (Exception e) {
@@ -459,7 +468,7 @@ public class LoginController {
         }
         petService.addPet(pet);
         Integer petId = pet.getPetId();
-        if(list==null) return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+        if (list == null) return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
 
         for (String base64Data : list) {
             if (ImageUtil.checkImage(base64Data)) {
@@ -471,11 +480,11 @@ public class LoginController {
 
             String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
 
-            String path = FILE_DISK_LOCATION + userName; //文件路径
+            String path = fileDiskLocation + userName; //文件路径
 
             try {
                 ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                petService.addImage(petId, PROJECT_PREFIX + userName + "/" + tempFileName);
+                petService.addImage(petId, projectPrefix + userName + "/" + tempFileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
@@ -548,8 +557,8 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> getFriendshipStatus(@PathVariable("id") int toId, HttpSession session) {
         int fromId = (int) session.getAttribute("id");
-        if(fromId==toId)  {
-            return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+        if (fromId == toId) {
+            return new ResponseEntity<>(ResultData.fail(201, "Do not add yourself"), HttpStatus.CREATED);
         }
         int result = friendService.checkFriendshipStatus(fromId, toId);
         if (result == 1) {
@@ -565,20 +574,21 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> sendFriendRequest(@PathVariable("id") int toId, HttpSession session) {
         int fromId = (int) session.getAttribute("id");
-        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+        if (fromId == toId)
+            return new ResponseEntity<>(ResultData.fail(201, "Do not add yourself"), HttpStatus.CREATED);
 
         int result = friendService.sendFriendRequest(fromId, toId);
 
-        if(result==2){
+        if (result == 2) {
             return new ResponseEntity<>(ResultData.success("Directly be friends"), HttpStatus.OK);
 
-        }else if(result==1){
+        } else if (result == 1) {
             return new ResponseEntity<>(ResultData.success("Request have been sent"), HttpStatus.OK);
 
-        }else if(result==0) {
-            return new ResponseEntity<>(ResultData.fail(201,"Do not add again"), HttpStatus.CREATED);
-        }else {
-            return new ResponseEntity<>(ResultData.fail(201,"You are already friends"), HttpStatus.CREATED);
+        } else if (result == 0) {
+            return new ResponseEntity<>(ResultData.fail(201, "Do not add again"), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "You are already friends"), HttpStatus.CREATED);
         }
     }
 
@@ -586,14 +596,15 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> acceptFriendRequest(@PathVariable("id") int toId, HttpSession session) {
         int fromId = (int) session.getAttribute("id");
-        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Do not add yourself"), HttpStatus.CREATED);
+        if (fromId == toId)
+            return new ResponseEntity<>(ResultData.fail(201, "Do not add yourself"), HttpStatus.CREATED);
 
         int request = friendService.acceptFriendRequest(fromId, toId);
         System.out.println(request);
-        if(request>=1){
+        if (request >= 1) {
             return new ResponseEntity<>(ResultData.success("Success to add friend"), HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(ResultData.fail(201,"Fail to add friend"), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "Fail to add friend"), HttpStatus.CREATED);
         }
     }
 
@@ -601,19 +612,20 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> rejectFriendRequest(@PathVariable("id") int toId, HttpSession session) {
         int fromId = (int) session.getAttribute("id");
-        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Can not reject yourself"), HttpStatus.CREATED);
+        if (fromId == toId)
+            return new ResponseEntity<>(ResultData.fail(201, "Can not reject yourself"), HttpStatus.CREATED);
 
         int request = friendService.rejectFriendRequest(fromId, toId);
-        if(request>=1){
+        if (request >= 1) {
             return new ResponseEntity<>(ResultData.success("Success to reject request"), HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(ResultData.fail(201,"Fail to reject request"), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "Fail to reject request"), HttpStatus.CREATED);
         }
     }
 
     @GetMapping("/friends")
     @ResponseBody
-    public ResponseEntity<Object> getFriendsList( HttpSession session) {
+    public ResponseEntity<Object> getFriendsList(HttpSession session) {
         int id = (int) session.getAttribute("id");
         List<User> allFriends = friendService.getAllFriends(id);
         return new ResponseEntity<>(ResultData.success(allFriends), HttpStatus.OK);
@@ -621,7 +633,7 @@ public class LoginController {
 
     @GetMapping("/friends/requests")
     @ResponseBody
-    public ResponseEntity<Object> getRequestList( HttpSession session) {
+    public ResponseEntity<Object> getRequestList(HttpSession session) {
         int id = (int) session.getAttribute("id");
         List<User> allRequests = friendService.getAllRequests(id);
         return new ResponseEntity<>(ResultData.success(allRequests), HttpStatus.OK);
@@ -631,13 +643,14 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> deleteFriendFromList(@PathVariable("id") int toId, HttpSession session) {
         int fromId = (int) session.getAttribute("id");
-        if(fromId==toId)  return new ResponseEntity<>(ResultData.fail(201,"Can not delete yourself"), HttpStatus.CREATED);
+        if (fromId == toId)
+            return new ResponseEntity<>(ResultData.fail(201, "Can not delete yourself"), HttpStatus.CREATED);
 
         int request = friendService.deleteFromFriendList(fromId, toId);
-        if(request>=1){
+        if (request >= 1) {
             return new ResponseEntity<>(ResultData.success("Success to delete friend"), HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(ResultData.fail(201,"Fail to delete friend"), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(ResultData.fail(201, "Fail to delete friend"), HttpStatus.CREATED);
         }
     }
 

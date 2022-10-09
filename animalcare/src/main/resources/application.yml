@@ -1,9 +1,9 @@
 spring:
   datasource:
     username: root
-    #password: LMY741917776!
-    password: Dyq603091
+    password: LMY741917776!
     url: jdbc:mysql://localhost:3306/db01?useUnicode=true&characterEncoding=utf-8
+    #url: jdbc:mysql://mysql:3306/db01?useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 
@@ -21,6 +21,8 @@ spring:
   redis:
     host: 35.189.27.6
     port: 6381
+    #host: redis
+    #port: 6379
     database: 0
     timeout: 1800000
     lettuce:
@@ -44,12 +46,15 @@ mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
 
 project:
-  file-path: "D:/userdata/"
+  #file-disk-location: "/D:/userdata/"
+  file-disk-location: "/userdata/"
+  project-prefix: "http://35.189.24.208:8080/api/images/"
 
 server:
   servlet:
     session:
       timeout: 3600s
+    context-path: /api
   port: 8080
 
 
