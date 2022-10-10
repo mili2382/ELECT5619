@@ -13,15 +13,10 @@ import usyd.mingyi.animalcare.service.PostService;
 class AnimalcareApplicationTests {
 
 
-    @Autowired
-    ProjectProperties projectProperties;
- /*   private  String FILE_DISK_LOCATION = projectProperties.getFileDiskLocation();
-    private   String PROJECT_PREFIX = projectProperties.getProjectPrefix();*/
+
     @Test
     public void test(){
-/*        System.out.println(FILE_DISK_LOCATION);
-        System.out.println(PROJECT_PREFIX);*/
-        System.out.println(projectProperties.toString());
+
     }
 
 }

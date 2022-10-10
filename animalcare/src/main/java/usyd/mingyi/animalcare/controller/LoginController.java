@@ -19,10 +19,7 @@ import usyd.mingyi.animalcare.service.FriendService;
 import usyd.mingyi.animalcare.service.PetService;
 import usyd.mingyi.animalcare.service.PostService;
 import usyd.mingyi.animalcare.service.UserService;
-import usyd.mingyi.animalcare.utils.ImageUtil;
-import usyd.mingyi.animalcare.utils.JasyptEncryptorUtils;
-import usyd.mingyi.animalcare.utils.ResultData;
-import usyd.mingyi.animalcare.utils.Verification;
+import usyd.mingyi.animalcare.utils.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -43,15 +40,10 @@ public class LoginController {
     @Autowired
     FriendService friendService;
     @Autowired
-    private RedisTemplate redisTemplate;
+    RedisTemplate redisTemplate;
     @Autowired
     ProjectProperties projectProperties;
 
-    //Redis key keyword for post and comment
-    public final static String REDIS_POST_KEY = "postId: ";
-    public final static String REDIS_POST_USER_KEY = " <-post_userId, postId: ";
-    public final static String REDIS_COMMENT_KEY = " <- comment_postId, commentId: ";
-    public final static int TIMEOUT = 300;
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
     @PostMapping("/login")
@@ -238,10 +230,6 @@ public class LoginController {
             }
         }
 
-        // Store new Post to Redis
-        ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);//used for get Post by post Id
-        operations.set(post.getUserId() + REDIS_POST_USER_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);// used for get posts by user id
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
@@ -270,25 +258,19 @@ public class LoginController {
 
         HttpSession session = request.getSession();
         int id = (int) session.getAttribute("id");
+        boolean loved = postService.checkLoved(id, postId);
+        Post postCache = RedisUtils.getPost(redisTemplate, postId, loved);
+        if(postCache!=null){
+           return new ResponseEntity<>(ResultData.success(postCache), HttpStatus.OK);
+        }
 
-//        if(redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
-//            Post post = (Post) redisTemplate.opsForValue().get(REDIS_POST_KEY + postId);
-//            if(post != null) {
-//                redisTemplate.expire(REDIS_POST_KEY + postId, TIMEOUT, TimeUnit.MINUTES);
-//                boolean b = postService.checkLoved(id,postId);
-//                post.setLoved(b);
-//            }
-//
-//            return new ResponseEntity<>(ResultData.success(post),HttpStatus.OK);
-//        }else {
+
         Post post = postService.queryPostById(postId);
 
         if (post != null) {
             post = postService.queryPostById(postId);
-            boolean b = postService.checkLoved(id, postId);
-            post.setLoved(b);
-            redisTemplate.opsForValue().set(REDIS_POST_KEY + postId, post, TIMEOUT, TimeUnit.MINUTES);
-
+            post.setLoved(loved);
+            RedisUtils.putPost(redisTemplate,post);
             return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
@@ -300,6 +282,9 @@ public class LoginController {
     @GetMapping("/love/{postId}")
     public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
+        String key = "post"+postId;
+        if(redisTemplate.hasKey(key))
+        redisTemplate.opsForHash().increment(key,"love",1);
         postService.love(id, postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
@@ -307,6 +292,9 @@ public class LoginController {
     @DeleteMapping("/love/{postId}")
     public ResponseEntity<Object> cancelLove(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
+        String key = "post"+postId;
+        if(redisTemplate.hasKey(key))
+        redisTemplate.opsForHash().increment(key,"love",-1);
         postService.cancelLove(id, postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
@@ -315,16 +303,12 @@ public class LoginController {
     public ResponseEntity<Object> deletePost(@PathVariable("postId") int postId, HttpSession session) {
 
         int id = (int) session.getAttribute("id");
-        Post post = postService.queryPostById(postId);
         if (postService.deletePost(postId, id) == 0) {
             return new ResponseEntity<>(ResultData.fail(201, "Fail to delete post, No such post found"), HttpStatus.CREATED);
         } else {
-            System.out.println("Delete post" + postId);
-            postService.deletePost(postId, id);
-            if (redisTemplate.hasKey(REDIS_POST_KEY + postId)) {
-                redisTemplate.delete(REDIS_POST_KEY + postId);
-                redisTemplate.delete(post.getUserId() + REDIS_POST_USER_KEY + postId);
-            }
+            String key = "post"+postId;
+            if(redisTemplate.hasKey(key))
+            redisTemplate.opsForHash().delete(key);
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 
@@ -334,31 +318,12 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId, HttpServletRequest request) {
 
-        HttpSession session = request.getSession();
         User user = userService.queryUserById(userId);
         if (user == null) {
             return new ResponseEntity<>(ResultData.fail(201, "No such user"), HttpStatus.CREATED);
         } else {
-
-//            if(redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*")).size() == postService.getPostByUserId(userId).size()) {
-//                Set<String> keys = redisTemplate.keys(userId + REDIS_POST_USER_KEY.concat("*"));
-//                List<Post> PostByUserId = (List<Post>) redisTemplate.opsForValue().multiGet(keys);
-//                for(Post post: PostByUserId) {
-//                    redisTemplate.expire(post.getUserId() + REDIS_POST_USER_KEY + post.getPostId(), TIMEOUT, TimeUnit.MINUTES);
-//                }
-//                return new ResponseEntity<>(ResultData.success(PostByUserId),HttpStatus.OK);
-//
-//            }else {
             List<Post> PostsByUserId = postService.getPostByUserId(userId);
-
-            for (Post post : PostsByUserId) {
-                ValueOperations operations = redisTemplate.opsForValue();
-                operations.set(REDIS_POST_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
-                operations.set(userId + REDIS_POST_USER_KEY + post.getPostId(), post, TIMEOUT, TimeUnit.MINUTES);
-            }
-
             return new ResponseEntity<>(ResultData.success(PostsByUserId), HttpStatus.OK);
-//            }
         }
     }
 
@@ -387,10 +352,6 @@ public class LoginController {
             return new ResponseEntity<>(ResultData.fail(201, "Comment invalid"), HttpStatus.CREATED);
         }
 
-        // Store new comment to Redis
-        ValueOperations operations = redisTemplate.opsForValue();
-        operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
-
         return new ResponseEntity<>(ResultData.success("Comment Added"), HttpStatus.OK);
     }
 
@@ -401,23 +362,11 @@ public class LoginController {
         if (postService.queryPostById(postId) == null) {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
-
-            if (redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*")).size() == postService.getCommentsByPostId(postId).size()) {
-                Set<String> keys = redisTemplate.keys(postId + REDIS_COMMENT_KEY.concat("*"));
-                List<Comment> CommentsByPostId = (List<Comment>) redisTemplate.opsForValue().multiGet(keys);
-
-                return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
-            } else {
                 List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
-
-                for (Comment comment : CommentsByPostId) {
-                    ValueOperations operations = redisTemplate.opsForValue();
-                    operations.set(postId + REDIS_COMMENT_KEY + comment.getId(), comment, TIMEOUT, TimeUnit.MINUTES);
-                }
-
                 return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
-            }
         }
+
+
     }
 
 

@@ -1,6 +1,7 @@
 package usyd.mingyi.animalcare.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import usyd.mingyi.animalcare.mapper.PostMapper;
@@ -47,15 +48,24 @@ public class PostServiceImp implements PostService{
     @Override
     @Transactional
     public int love(int userId, int postId) {
+
+        if(!checkLoved(userId,postId)){
         postMapper.lovePlus(postId);
         return postMapper.love(userId,postId);
+        }else {
+            return 0;
+        }
     }
 
     @Override
     @Transactional
     public int cancelLove(int userId, int postId) {
+        if(checkLoved(userId,postId)){
         postMapper.loveMinus(postId);
         return postMapper.cancelLove(userId,postId);
+        }else {
+            return 0;
+        }
     }
 
     @Override
