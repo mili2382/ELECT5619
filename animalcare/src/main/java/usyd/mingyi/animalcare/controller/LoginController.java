@@ -166,10 +166,10 @@ public class LoginController {
                 return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
             }
         } else {
-            //查到之前头像的address
+   /*         //查到之前头像的address
             User user = userService.queryUserById(id);
             String preUserImageAddress = user.getUserImageAddress();
-            userInfo.setUserImageAddress(preUserImageAddress);
+            userInfo.setUserImageAddress(preUserImageAddress);*/
             userService.updateUser(userInfo);
         }
         return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
@@ -316,7 +316,7 @@ public class LoginController {
 
     @GetMapping("/getPostByUserId/{id}")
     @ResponseBody
-    public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId, HttpServletRequest request) {
+    public ResponseEntity<Object> getPostsByUserId(@PathVariable("id") int userId) {
 
         User user = userService.queryUserById(userId);
         if (user == null) {
