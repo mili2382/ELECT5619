@@ -26,6 +26,7 @@ public class Post implements Serializable {
     private Integer totalPosts;
     private String nickName;
     private String userName;
+    private Integer visitCount;
 
 
 }

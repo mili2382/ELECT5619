@@ -15,7 +15,7 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginHandlerInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login", "/signup","/username","/email", "/images/**","/*.JPG");//放行模式
+                .excludePathPatterns("/login", "/signup","/username","/email","/validate", "/images/**","/*.JPG");//放行模式
     }
 
     @Override

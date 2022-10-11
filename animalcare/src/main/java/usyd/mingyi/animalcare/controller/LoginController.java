@@ -130,9 +130,16 @@ public class LoginController {
     public ResponseEntity<Object> validateCode(@RequestBody Map map) {
         String code = (String) map.get("code");
         String userName = (String) map.get("userName");
-        if (Verification.hasUser(userName)) {
-            if (Verification.getCode(userName).equals(code)) {
-                return new ResponseEntity<>(ResultData.success("Code equal"), HttpStatus.OK);
+        String password = (String) map.get("password");
+        if (redisTemplate.hasKey(userName)) {
+            if (redisTemplate.opsForValue().get(userName).toString().equals(code)) {
+               if(userService.updatePassword(userName, JasyptEncryptorUtils.encode(password))>=1){
+                   redisTemplate.delete(userName);
+                return new ResponseEntity<>(ResultData.success("Success to change password "), HttpStatus.OK);
+               }else {
+                   return new ResponseEntity<>(ResultData.fail(201, "Fail to change password"), HttpStatus.CREATED);
+               }
+
             } else {
                 return new ResponseEntity<>(ResultData.fail(201, "Code not equal"), HttpStatus.CREATED);
             }
@@ -166,11 +173,8 @@ public class LoginController {
                 return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
             }
         } else {
-   /*         //查到之前头像的address
-            User user = userService.queryUserById(id);
-            String preUserImageAddress = user.getUserImageAddress();
-            userInfo.setUserImageAddress(preUserImageAddress);*/
             userService.updateUser(userInfo);
+            //删掉本地之前的头像（未写）
         }
         return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
     }
@@ -603,18 +607,36 @@ public class LoginController {
         }
     }
 
-//    @GetMapping("/search/trendingPosts")
-//    @ResponseBody
-//    public ResponseEntity<Object> getTrendingPosts() {
-//        List<Post> trendingPosts = new ArrayList<>();
-//        for (int i = 0; i < 20; i++) {
-//            Post p = new Post();
-//            p.setTopic("my topic");
-//            p.setPostId(i);
-//            trendingPosts.add(p);
-//        }
-//        return new ResponseEntity<>(ResultData.success(trendingPosts), HttpStatus.OK);
-//    }
+    @GetMapping("/search/trendingPosts")
+    @ResponseBody
+    public ResponseEntity<Object> getTrendingPosts(HttpSession session) {
+        Set<String> postsName = redisTemplate.keys("post*");
+        if(postsName.size()>0){
+            String key = "";
+            int max = 0;
+            for (String str : postsName) {
+
+                int result = (Integer)redisTemplate.opsForHash().get(str,"visitCount");
+                if(result>max){
+                    key=str;
+                    max=result;
+                }
+
+            }
+            if(redisTemplate.hasKey(key)){
+                Integer postId = Integer.valueOf(key.substring("post".length()));
+                int id = (int) session.getAttribute("id");
+                boolean loved = postService.checkLoved(id, postId);
+                Post post = RedisUtils.getPost(redisTemplate, postId, loved);
+                return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
+
+            }
+
+        }
+
+
+        return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
+    }
 
 
 }

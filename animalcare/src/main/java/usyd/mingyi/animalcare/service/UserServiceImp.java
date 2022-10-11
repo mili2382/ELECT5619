@@ -1,6 +1,7 @@
 package usyd.mingyi.animalcare.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
@@ -11,6 +12,7 @@ import usyd.mingyi.animalcare.utils.Verification;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImp implements  UserService{
@@ -21,6 +23,9 @@ public class UserServiceImp implements  UserService{
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     JavaMailSenderImpl mailSender;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
     public User queryUser(String username, String password) {
@@ -53,11 +58,12 @@ public class UserServiceImp implements  UserService{
         int i = new Random().nextInt(1000000);
         String code = String.format("%06d", i);
         mailMessage.setSubject("Verification Code");
-        mailMessage.setText("This is your one time verification code :" + code);
+        mailMessage.setText("This is your one time verification code :" + code+" [Valid in 5 Minutes]");
         mailMessage.setTo(email);
         mailMessage.setFrom("LMY741917776@gmail.com");
         mailSender.send(mailMessage);
-        Verification.putCode(userName, code);
+        redisTemplate.opsForValue().set(userName,code,300, TimeUnit.SECONDS);
+        //Verification.putCode(userName, code);
     }
 
     @Override
@@ -68,6 +74,11 @@ public class UserServiceImp implements  UserService{
     @Override
     public User getProfile(int userId) {
         return userMapper.getProfile(userId);
+    }
+
+    @Override
+    public int updatePassword(String username, String password) {
+        return userMapper.updatePassword(username,password);
     }
 
 }

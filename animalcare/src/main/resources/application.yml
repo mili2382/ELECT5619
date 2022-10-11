@@ -1,10 +1,10 @@
 spring:
   datasource:
     username: root
-    password: LMY741917776!
-    #password: 123456
-    #url: jdbc:mysql://localhost:3306/db01?useUnicode=true&characterEncoding=utf-8
-    url: jdbc:mysql://mysql:3306/db01?useUnicode=true&characterEncoding=utf-8
+    #password: LMY741917776!
+    password: 123456
+    url: jdbc:mysql://localhost:3306/db01?useUnicode=true&characterEncoding=utf-8
+    #url: jdbc:mysql://mysql:3306/db01?useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:
@@ -16,7 +16,7 @@ spring:
     port: 587
     host: smtp.gmail.com
     username: LMY741917776@gmail.com
-    password: qybmnkrzlrfnxlzb
+    password: walycwwkefhiojsm
     properties:
       mail:
         smtp:
@@ -24,10 +24,10 @@ spring:
           starttls:
             enable: true
   redis:
-    #host: 35.189.27.6
-    #port: 6381
-    host: redis
-    port: 6379
+    host: 35.189.27.6
+    port: 6381
+    #host: redis
+    #port: 6379
     database: 0
     timeout: 1800000
     lettuce:

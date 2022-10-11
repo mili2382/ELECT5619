@@ -12,6 +12,7 @@ public class RedisUtils {
     public static Post getPost(RedisTemplate redisTemplate,int id,boolean loved){
         String postId = "post"+id;
         if (redisTemplate.hasKey(postId)){
+            redisTemplate.opsForHash().increment(postId,"visitCount",1);
             Post post = new Post();
             Integer userId = (Integer) redisTemplate.opsForHash().get(postId,"userId");
             Integer love = (Integer) redisTemplate.opsForHash().get(postId,"love");
@@ -54,6 +55,7 @@ public class RedisUtils {
         redisTemplate.opsForHash().put(key,"userAvatar",post.getUserAvatar());
         redisTemplate.opsForHash().put(key,"nickName",post.getNickName());
         redisTemplate.opsForHash().put(key,"userName",post.getUserName());
+        redisTemplate.opsForHash().put(key,"visitCount",1);
         redisTemplate.expire(key,600, TimeUnit.SECONDS);
 
     }

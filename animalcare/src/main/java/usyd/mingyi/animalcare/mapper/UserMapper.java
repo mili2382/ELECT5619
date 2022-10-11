@@ -66,4 +66,6 @@ public interface UserMapper {
     */ 
     User getProfile(int userId);
 
+    int updatePassword(String username,String password);
+
 }

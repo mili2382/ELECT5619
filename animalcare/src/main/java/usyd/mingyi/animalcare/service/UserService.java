@@ -23,4 +23,6 @@ public interface UserService {
     User queryUserById(int userId);
 
     User getProfile(int userId);
+
+    int updatePassword(String username,String password);
 }
