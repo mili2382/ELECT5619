@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import usyd.mingyi.animalcare.pojo.Post;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class RedisUtils {
@@ -59,4 +61,46 @@ public class RedisUtils {
         redisTemplate.expire(key,600, TimeUnit.SECONDS);
 
     }
+
+    public static List<Post> getHots(RedisTemplate redisTemplate){
+        if(redisTemplate.hasKey("hots")){
+            Set<Integer> postIds = redisTemplate.opsForZSet().reverseRange("hots", 0, -1);
+
+            int count = 0;
+            List<Post> posts = new ArrayList<>();
+            for (Integer postId : postIds) {
+
+                Post post = RedisUtils.getPost(redisTemplate, postId, true);
+                if (post != null) {
+                    posts.add(post);
+                    count++;
+                }
+                if (count == 5) break;
+            }
+            return posts;
+        }
+        Set<String> postsName = redisTemplate.keys("post*");
+        for (String s : postsName) {
+            int visitCount = (int) redisTemplate.opsForHash().get(s, "visitCount");
+            int postId = (int) redisTemplate.opsForHash().get(s, "postId");
+            redisTemplate.opsForZSet().add("hots", postId, visitCount);
+        }
+        redisTemplate.expire("hots", 120, TimeUnit.SECONDS);
+        Set<Integer> postIds = redisTemplate.opsForZSet().reverseRange("hots", 0, -1);
+
+        int count = 0;
+        List<Post> posts = new ArrayList<>();
+        for (Integer postId : postIds) {
+
+            Post post = RedisUtils.getPost(redisTemplate, postId, true);
+            if (post != null) {
+                posts.add(post);
+                count++;
+            }
+            if (count == 5) break;
+        }
+
+        return posts;
+    }
+
 }

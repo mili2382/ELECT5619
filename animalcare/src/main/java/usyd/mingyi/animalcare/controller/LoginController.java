@@ -134,12 +134,12 @@ public class LoginController {
 
         if (redisTemplate.hasKey(userName)) {
             if (redisTemplate.opsForValue().get(userName).toString().equals(code)) {
-               if(userService.updatePassword(userName, JasyptEncryptorUtils.encode(password))>=1){
-                   redisTemplate.delete(userName);
-                return new ResponseEntity<>(ResultData.success("Success to change password "), HttpStatus.OK);
-               }else {
-                   return new ResponseEntity<>(ResultData.fail(201, "Fail to change password"), HttpStatus.CREATED);
-               }
+                if (userService.updatePassword(userName, JasyptEncryptorUtils.encode(password)) >= 1) {
+                    redisTemplate.delete(userName);
+                    return new ResponseEntity<>(ResultData.success("Success to change password "), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(ResultData.fail(201, "Fail to change password"), HttpStatus.CREATED);
+                }
 
             } else {
                 return new ResponseEntity<>(ResultData.fail(201, "Code not equal"), HttpStatus.CREATED);
@@ -265,8 +265,8 @@ public class LoginController {
         int id = (int) session.getAttribute("id");
         boolean loved = postService.checkLoved(id, postId);
         Post postCache = RedisUtils.getPost(redisTemplate, postId, loved);
-        if(postCache!=null){
-           return new ResponseEntity<>(ResultData.success(postCache), HttpStatus.OK);
+        if (postCache != null) {
+            return new ResponseEntity<>(ResultData.success(postCache), HttpStatus.OK);
         }
 
 
@@ -275,7 +275,7 @@ public class LoginController {
         if (post != null) {
             post = postService.queryPostById(postId);
             post.setLoved(loved);
-            RedisUtils.putPost(redisTemplate,post);
+            RedisUtils.putPost(redisTemplate, post);
             return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(ResultData.fail(201, "No such post found"), HttpStatus.CREATED);
@@ -287,9 +287,9 @@ public class LoginController {
     @GetMapping("/love/{postId}")
     public ResponseEntity<Object> love(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
-        String key = "post"+postId;
-        if(redisTemplate.hasKey(key))
-        redisTemplate.opsForHash().increment(key,"love",1);
+        String key = "post" + postId;
+        if (redisTemplate.hasKey(key))
+            redisTemplate.opsForHash().increment(key, "love", 1);
         postService.love(id, postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
@@ -297,9 +297,9 @@ public class LoginController {
     @DeleteMapping("/love/{postId}")
     public ResponseEntity<Object> cancelLove(@PathVariable("postId") int postId, HttpSession session) {
         int id = (int) session.getAttribute("id");
-        String key = "post"+postId;
-        if(redisTemplate.hasKey(key))
-        redisTemplate.opsForHash().increment(key,"love",-1);
+        String key = "post" + postId;
+        if (redisTemplate.hasKey(key))
+            redisTemplate.opsForHash().increment(key, "love", -1);
         postService.cancelLove(id, postId);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
@@ -311,9 +311,9 @@ public class LoginController {
         if (postService.deletePost(postId, id) == 0) {
             return new ResponseEntity<>(ResultData.fail(201, "Fail to delete post, No such post found"), HttpStatus.CREATED);
         } else {
-            String key = "post"+postId;
-            if(redisTemplate.hasKey(key))
-            redisTemplate.opsForHash().delete(key);
+            String key = "post" + postId;
+            if (redisTemplate.hasKey(key))
+                redisTemplate.opsForHash().delete(key);
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 
@@ -367,8 +367,8 @@ public class LoginController {
         if (postService.queryPostById(postId) == null) {
             return new ResponseEntity<>(ResultData.fail(201, "No such post"), HttpStatus.CREATED);
         } else {
-                List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
-                return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
+            List<Comment> CommentsByPostId = postService.getCommentsByPostId(postId);
+            return new ResponseEntity<>(ResultData.success(CommentsByPostId), HttpStatus.OK);
         }
 
 
@@ -612,24 +612,7 @@ public class LoginController {
     @ResponseBody
     public ResponseEntity<Object> getTrendingPosts() {
 
-        Set<String> postsName = redisTemplate.keys("post*");
-        for (String s : postsName) {
-            int visitCount = (int) redisTemplate.opsForHash().get(s, "visitCount");
-            int postId = (int) redisTemplate.opsForHash().get(s, "postId");
-            redisTemplate.opsForZSet().add("hots",postId,visitCount);
-        }
-        redisTemplate.expire("hots",300,TimeUnit.SECONDS);
-        Set<Integer> postIds = redisTemplate.opsForZSet().reverseRange("hots", 0, -1);
-
-        int count = 0;
-        List<Post> posts = new ArrayList<>();
-        for (Integer postId : postIds) {
-
-            Post post = RedisUtils.getPost(redisTemplate, postId, true);
-            posts.add(post);
-            count++;
-            if(count==5)break;
-        }
+        List<Post> posts = RedisUtils.getHots(redisTemplate);
 
         return new ResponseEntity<>(ResultData.success(posts), HttpStatus.OK);
     }
