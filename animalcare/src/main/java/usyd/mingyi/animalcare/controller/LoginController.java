@@ -131,6 +131,7 @@ public class LoginController {
         String code = (String) map.get("code");
         String userName = (String) map.get("userName");
         String password = (String) map.get("password");
+
         if (redisTemplate.hasKey(userName)) {
             if (redisTemplate.opsForValue().get(userName).toString().equals(code)) {
                if(userService.updatePassword(userName, JasyptEncryptorUtils.encode(password))>=1){
