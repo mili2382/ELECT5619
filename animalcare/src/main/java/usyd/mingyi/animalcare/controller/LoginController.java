@@ -610,33 +610,28 @@ public class LoginController {
 
     @GetMapping("/search/trendingPosts")
     @ResponseBody
-    public ResponseEntity<Object> getTrendingPosts(HttpSession session) {
+    public ResponseEntity<Object> getTrendingPosts() {
+
         Set<String> postsName = redisTemplate.keys("post*");
-        if(postsName.size()>0){
-            String key = "";
-            int max = 0;
-            for (String str : postsName) {
+        for (String s : postsName) {
+            int visitCount = (int) redisTemplate.opsForHash().get(s, "visitCount");
+            int postId = (int) redisTemplate.opsForHash().get(s, "postId");
+            redisTemplate.opsForZSet().add("hots",postId,visitCount);
+        }
+        redisTemplate.expire("hots",300,TimeUnit.SECONDS);
+        Set<Integer> postIds = redisTemplate.opsForZSet().reverseRange("hots", 0, -1);
 
-                int result = (Integer)redisTemplate.opsForHash().get(str,"visitCount");
-                if(result>max){
-                    key=str;
-                    max=result;
-                }
+        int count = 0;
+        List<Post> posts = new ArrayList<>();
+        for (Integer postId : postIds) {
 
-            }
-            if(redisTemplate.hasKey(key)){
-                Integer postId = Integer.valueOf(key.substring("post".length()));
-                int id = (int) session.getAttribute("id");
-                boolean loved = postService.checkLoved(id, postId);
-                Post post = RedisUtils.getPost(redisTemplate, postId, loved);
-                return new ResponseEntity<>(ResultData.success(post), HttpStatus.OK);
-
-            }
-
+            Post post = RedisUtils.getPost(redisTemplate, postId, true);
+            posts.add(post);
+            count++;
+            if(count==5)break;
         }
 
-
-        return new ResponseEntity<>(ResultData.success(null), HttpStatus.OK);
+        return new ResponseEntity<>(ResultData.success(posts), HttpStatus.OK);
     }
 
 
