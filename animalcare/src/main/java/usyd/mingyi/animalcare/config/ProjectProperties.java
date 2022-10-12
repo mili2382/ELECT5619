@@ -8,6 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ToString
 @ConfigurationProperties(prefix = "project")
 public class ProjectProperties {
-    public  String fileDiskLocation;
-    public  String projectPrefix;
+    public String fileDiskLocation;
+    public String projectPrefix;
 }

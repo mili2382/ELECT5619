@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("被拦截的路径: "+request.getRequestURI());
+        log.info("被拦截的路径: " + request.getRequestURI());
 
         HttpSession session = request.getSession(false);
 

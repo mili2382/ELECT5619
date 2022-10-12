@@ -8,7 +8,7 @@ import usyd.mingyi.animalcare.pojo.Pet;
 import java.util.List;
 
 @Service
-public class PetServiceImp implements  PetService{
+public class PetServiceImp implements PetService {
 
     @Autowired
     PetMapper petMapper;
@@ -26,17 +26,17 @@ public class PetServiceImp implements  PetService{
 
     @Override
     public Pet getPet(int petId, int useId) {
-        return petMapper.getPet(petId,useId);
+        return petMapper.getPet(petId, useId);
     }
 
     @Override
     public int deletePet(int petId, int useId) {
-        return petMapper.deletePet(petId,useId);
+        return petMapper.deletePet(petId, useId);
     }
 
     @Override
     public int addImage(int imagePetId, String imageUrl) {
-        return petMapper.addImage(imagePetId,imageUrl);
+        return petMapper.addImage(imagePetId, imageUrl);
     }
 
 }

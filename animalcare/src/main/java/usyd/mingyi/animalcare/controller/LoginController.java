@@ -313,7 +313,7 @@ public class LoginController {
         } else {
             String key = "post" + postId;
             if (redisTemplate.hasKey(key))
-                redisTemplate.opsForHash().delete(key);
+                redisTemplate.delete(key);
             return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
         }
 

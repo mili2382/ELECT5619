@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class UserServiceImp implements  UserService{
+public class UserServiceImp implements UserService {
 
     @Autowired
     UserMapper userMapper;
@@ -29,12 +29,12 @@ public class UserServiceImp implements  UserService{
 
     @Override
     public User queryUser(String username, String password) {
-        return  userMapper.queryUser(username,password);
+        return userMapper.queryUser(username, password);
     }
 
     @Override
     public int addUser(User user) {
-       return userMapper.addUser(user);
+        return userMapper.addUser(user);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class UserServiceImp implements  UserService{
 
     @Override
     public int updateUser(User user) {
-       return userMapper.updateUser(user);
+        return userMapper.updateUser(user);
     }
 
     @Override
@@ -53,16 +53,16 @@ public class UserServiceImp implements  UserService{
     }
 
     @Async
-    public  void sendEmail(String email,String userName){
+    public void sendEmail(String email, String userName) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         int i = new Random().nextInt(1000000);
         String code = String.format("%06d", i);
         mailMessage.setSubject("Verification Code");
-        mailMessage.setText("This is your one time verification code :" + code+" [Valid in 5 Minutes]");
+        mailMessage.setText("This is your one time verification code :" + code + " [Valid in 5 Minutes]");
         mailMessage.setTo(email);
         mailMessage.setFrom("LMY741917776@gmail.com");
         mailSender.send(mailMessage);
-        redisTemplate.opsForValue().set(userName,code,300, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(userName, code, 300, TimeUnit.SECONDS);
         //Verification.putCode(userName, code);
     }
 
@@ -78,7 +78,7 @@ public class UserServiceImp implements  UserService{
 
     @Override
     public int updatePassword(String username, String password) {
-        return userMapper.updatePassword(username,password);
+        return userMapper.updatePassword(username, password);
     }
 
 }

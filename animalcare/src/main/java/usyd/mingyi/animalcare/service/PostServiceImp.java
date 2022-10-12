@@ -11,28 +11,28 @@ import usyd.mingyi.animalcare.pojo.Post;
 import java.util.List;
 
 @Service
-public class PostServiceImp implements PostService{
+public class PostServiceImp implements PostService {
     @Autowired
     PostMapper postMapper;
 
     @Override
     public int addPost(Post post) {
-       return postMapper.addPost(post);
+        return postMapper.addPost(post);
     }
 
     @Override
     public int addImage(int imagePostId, String imageUrl) {
-        return postMapper.addImage(imagePostId,imageUrl);
+        return postMapper.addImage(imagePostId, imageUrl);
     }
 
     @Override
     public List<Post> getAllPosts(int currPage, int pageSize) {
-        return postMapper.getAllPosts(currPage,pageSize);
+        return postMapper.getAllPosts(currPage, pageSize);
     }
 
     @Override
     public List<Post> getAllPostsOrderByLove(int currPage, int pageSize) {
-        return postMapper.getAllPostsOrderByLove(currPage,pageSize);
+        return postMapper.getAllPostsOrderByLove(currPage, pageSize);
     }
 
     @Override
@@ -42,17 +42,17 @@ public class PostServiceImp implements PostService{
 
     @Override
     public boolean checkLoved(int userId, int postId) {
-        return postMapper.checkLoved(userId,postId);
+        return postMapper.checkLoved(userId, postId);
     }
 
     @Override
     @Transactional
     public int love(int userId, int postId) {
 
-        if(!checkLoved(userId,postId)){
-        postMapper.lovePlus(postId);
-        return postMapper.love(userId,postId);
-        }else {
+        if (!checkLoved(userId, postId)) {
+            postMapper.lovePlus(postId);
+            return postMapper.love(userId, postId);
+        } else {
             return 0;
         }
     }
@@ -60,17 +60,17 @@ public class PostServiceImp implements PostService{
     @Override
     @Transactional
     public int cancelLove(int userId, int postId) {
-        if(checkLoved(userId,postId)){
-        postMapper.loveMinus(postId);
-        return postMapper.cancelLove(userId,postId);
-        }else {
+        if (checkLoved(userId, postId)) {
+            postMapper.loveMinus(postId);
+            return postMapper.cancelLove(userId, postId);
+        } else {
             return 0;
         }
     }
 
     @Override
     public int deletePost(int postId, int userId) {
-        return postMapper.deletePost(postId, userId );
+        return postMapper.deletePost(postId, userId);
     }
 
     @Override
