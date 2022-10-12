@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.client.RestTemplate;
 import usyd.mingyi.animalcare.config.ProjectProperties;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
@@ -43,6 +44,8 @@ public class LoginController {
     RedisTemplate redisTemplate;
     @Autowired
     ProjectProperties projectProperties;
+    @Autowired
+    RestTemplate restTemplate;
 
 
     //Two main ways to receive data from frontend map and pojo, we plan to use pojo to receive data for better maintain in future
@@ -94,6 +97,8 @@ public class LoginController {
 
         userInfo.setPassword(JasyptEncryptorUtils.encode(userInfo.getPassword()));
         userInfo.setUuid(UUID.randomUUID().toString());
+        String randomNickname = RandomUtils.getRandomNickname(restTemplate);
+        userInfo.setNickName(randomNickname);
         int i = userService.addUser(userInfo);
         if (i >= 1) {
             return new ResponseEntity<>(ResultData.success("Signup success"), HttpStatus.OK);
