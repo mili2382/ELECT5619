@@ -215,31 +215,34 @@ public class LoginController {
         }
         Integer postId = post.getPostId();
 
-        for (String base64Data : list) {
-            if (ImageUtil.checkImage(base64Data)) {
-                suffix = ImageUtil.getSuffix(base64Data);
-                data = ImageUtil.getData(base64Data);
-            } else {
-                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+        try {
+            for (String base64Data : list) {
+                if (ImageUtil.checkImage(base64Data)) {
+                    suffix = ImageUtil.getSuffix(base64Data);
+                    data = ImageUtil.getData(base64Data);
+                } else {
+                    return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+                }
+
+
+                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+
+
+                String path = fileDiskLocation + userName; //文件路径
+
+                try {
+                    ImageUtil.convertBase64ToFile(data, path, tempFileName);
+                    postService.addImage(postId, projectPrefix + userName + "/" + tempFileName);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
+
+                }
             }
-
-
-            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
-
-
-            String path = fileDiskLocation + userName; //文件路径
-
-            try {
-                ImageUtil.convertBase64ToFile(data, path, tempFileName);
-                postService.addImage(postId, projectPrefix + userName + "/" + tempFileName);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
-
-            }
+        }catch (NullPointerException e) {
+            e.printStackTrace();
         }
-
 
         return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
 
