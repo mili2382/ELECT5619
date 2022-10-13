@@ -480,7 +480,7 @@ public class LoginController {
     public ResponseEntity<Object> deletePet(@PathVariable("petId") int petId, HttpSession session) {
         int id = (int) session.getAttribute("id");
         int i = petService.deletePet(petId, id);
-        if (i == 0) return new ResponseEntity<>(ResultData.fail(201, "Fail to delete for no such pet"), HttpStatus.OK);
+        if (i == 0) return new ResponseEntity<>(ResultData.fail(201, "Fail to delete for no such pet"), HttpStatus.CREATED);
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
     }
 

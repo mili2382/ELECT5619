@@ -48,14 +48,6 @@ import usyd.mingyi.animalcare.pojo.User;
 import usyd.mingyi.animalcare.service.PetService;
 import usyd.mingyi.animalcare.service.PostService;
 import usyd.mingyi.animalcare.service.UserService;
-
-import javax.mail.Session;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PipedReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -215,7 +207,7 @@ class AnimalcareApplicationTests {
 
     @Test
     public void deletePost() throws Exception {
-        String url = "http://localhost:8080//post/deletePost/{postId}";
+        String url = "http://localhost:8080/post/deletePost/{postId}";
         MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
 
         //bad delete
@@ -267,7 +259,7 @@ class AnimalcareApplicationTests {
 
     @Test
     public void getCommentsByPostId() throws Exception {
-        String url = "http://localhost:8080//getCommentsByPostId/{postId}";
+        String url = "http://localhost:8080/getCommentsByPostId/{postId}";
         int postId = 1;
         MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
 
@@ -309,6 +301,95 @@ class AnimalcareApplicationTests {
         }
     }
 
+    @Test
+    public void getPetList() throws Exception {
+        String url = "http://localhost:8080/getPetList";
+        MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
+
+        JSONObject data = new JSONObject();//should be equal to data
+        data.put("petId",3);
+        data.put("userId", null);
+        data.put("petName", "XIXI");
+        data.put("age", 2);
+        data.put("category", "dog");
+        data.put("petImageAddress", "http://localhost:8080/images/dogDefault.jpg");
+        data.put("petDescription", null);
+        data.put("petImageList", null);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .session(session)
+                        .accept(JSON))//Perform the requested
+                .andExpect(content().contentType(JSON))//Verify the response contentType
+                .andExpect(jsonPath("$.message").value("Success"))//Validate Json content using Json path
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andDo(print())
+                .andReturn(); //Return MvcResult
+
+        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+    }
+
+    @Test
+    public void getPet() throws Exception {
+        String url = "http://localhost:8080/pet/{petId}";
+        MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
+
+        //no pet found test
+        int BadPetId = 1;
+        MvcResult BadResult = mockMvc.perform(MockMvcRequestBuilders.get(url, BadPetId)
+                        .session(session)
+                        .accept(JSON))//Perform the requested
+                .andExpect(content().contentType(JSON))//Verify the response contentType
+                .andExpect(jsonPath("$.message").value("No such pet found"))//Validate Json content using Json path
+                .andExpect(jsonPath("$.data").isEmpty())
+                .andExpect(MockMvcResultMatchers.status().is(201))
+                .andDo(print())
+                .andReturn(); //Return MvcResult
+        Assert.assertEquals(2, BadResult.getRequest().getSession().getAttribute("id"));
+
+        //exist pet
+        int petId = 3;
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(url, petId)
+                        .session(session)
+                        .accept(JSON))//Perform the requested
+                .andExpect(content().contentType(JSON))//Verify the response contentType
+                .andExpect(jsonPath("$.message").value("Success"))//Validate Json content using Json path
+                .andExpect(jsonPath("$.data").isNotEmpty())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print())
+                .andReturn(); //Return MvcResult
+        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+    }
+
+    @Test
+    public void deletePet() throws Exception {
+        String url = "http://localhost:8080/pet/{petId}";
+        MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
+
+        //bad delete
+        int BadPetId = 1;
+        MvcResult BadResult = mockMvc.perform(MockMvcRequestBuilders.delete(url, BadPetId)
+                        .session(session)
+                        .accept(JSON))//Perform the requested
+                .andExpect(content().contentType(JSON))//Verify the response contentType
+                .andExpect(jsonPath("$.message").value("Fail to delete for no such pet"))//Validate Json content using Json path
+                .andExpect(MockMvcResultMatchers.status().is(201))
+                .andReturn(); //Return MvcResult
+
+        Assert.assertEquals(2, BadResult.getRequest().getSession().getAttribute("id"));
+
+        //right delete
+        int petId = 3;
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete(url, petId)
+                        .session(session)
+                        .accept(JSON))//Perform the requested
+                .andExpect(content().contentType(JSON))//Verify the response contentType
+                .andExpect(jsonPath("$.message").value("Success"))//Validate Json content using Json path
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn(); //Return MvcResult
+
+        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+    }
 
     //Redis test ----------------待删
     private final String RedisPostKey = "Test_postId: ";
