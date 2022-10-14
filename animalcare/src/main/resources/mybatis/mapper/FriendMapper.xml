@@ -51,7 +51,7 @@
     <select id="getAllRequests" resultMap="requestsInfo">
         SELECT user_id_from,nickname,description,user_image_address
         FROM requestlist AS rl
-                 LEFT JOIN user AS u ON rl.user_id_to=u.id
+                 LEFT JOIN user AS u ON rl.user_id_from=u.id
         WHERE rl.user_id_to = #{id}
     </select>
     <resultMap id="requestsInfo" type="User">

@@ -47,7 +47,7 @@
     </resultMap>
 
     <insert id="addUser" parameterType="User">
-          insert into user (username,password,uuid,email) values (#{userName},#{password},#{uuid},#{email})
+          insert into user (username,password,uuid,email,user_image_address,nickname) values (#{userName},#{password},#{uuid},#{email},#{userImageAddress},#{nickName})
     </insert>
 
     <select id="queryPassword" parameterType="String" resultType="String">

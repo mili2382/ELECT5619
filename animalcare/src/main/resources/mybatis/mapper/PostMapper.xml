@@ -27,8 +27,9 @@
         select * from post AS po
                           left join image AS i on po.post_id=i.image_post_id
                           left join user As u on po.post_user_id=u.id
-        where match (post_content) against (#{keywords}in boolean mode) or match (topic) against (#{keywords}in boolean mode)
+        where match (topic) against (#{keywords}in boolean mode)
     </select>
+    <!--match (post_content) against (#{keywords}in boolean mode) or-->
 
     <resultMap id="postsInfo" type="Post">
         <result property="postId" column="post_id"/>
