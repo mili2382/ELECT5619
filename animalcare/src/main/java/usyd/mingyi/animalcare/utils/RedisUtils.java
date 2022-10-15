@@ -85,7 +85,7 @@ public class RedisUtils {
             int postId = (int) redisTemplate.opsForHash().get(s, "postId");
             redisTemplate.opsForZSet().add("hots", postId, visitCount);
         }
-        redisTemplate.expire("hots", 120, TimeUnit.SECONDS);
+        redisTemplate.expire("hots", 10, TimeUnit.SECONDS);
         Set<Integer> postIds = redisTemplate.opsForZSet().reverseRange("hots", 0, -1);
 
         int count = 0;
