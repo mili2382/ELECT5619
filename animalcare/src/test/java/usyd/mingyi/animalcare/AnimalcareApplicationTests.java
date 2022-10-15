@@ -67,8 +67,8 @@ class AnimalcareApplicationTests {
 
         //Test for existing users
         JSONObject user = new JSONObject();
-        user.put("userName", "richard");
-        user.put("password", "12345678");
+        user.put("userName", "741917776");
+        user.put("password", "123456");
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(url)
                 .contentType(JSONtype)
@@ -81,8 +81,8 @@ class AnimalcareApplicationTests {
         //result 结果用于如果有需要可以添加自定义assert
         session = (MockHttpSession) result.getRequest().getSession(false);
 
-        Assert.assertEquals(2, session.getAttribute("id"));
-        Assert.assertEquals("richard", session.getAttribute("userName"));
+        Assert.assertEquals(1, session.getAttribute("id"));
+        Assert.assertEquals("741917776", session.getAttribute("userName"));
 
     }
 
@@ -125,7 +125,7 @@ class AnimalcareApplicationTests {
                 .andReturn();
 
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -142,7 +142,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -159,7 +159,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -168,7 +168,7 @@ class AnimalcareApplicationTests {
         MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
 
         //bad delete
-        int BadPostId = 1;
+        int BadPostId = 3;
         MvcResult BadResult = mockMvc.perform(MockMvcRequestBuilders.delete(url, BadPostId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -177,10 +177,10 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().is(201))
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, BadResult.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, BadResult.getRequest().getSession().getAttribute("id"));
 
         //right delete
-        int postId = 22;
+        int postId = 1;
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete(url, postId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -189,7 +189,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
 
 
     }
@@ -211,7 +211,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -228,7 +228,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -251,7 +251,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
 
         if (session != null) {
             System.out.println("YESSSSS");
@@ -283,7 +283,7 @@ class AnimalcareApplicationTests {
                 .andDo(print())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -292,7 +292,7 @@ class AnimalcareApplicationTests {
         MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
 
         //no pet found test
-        int BadPetId = 1;
+        int BadPetId = 6;
         MvcResult BadResult = mockMvc.perform(MockMvcRequestBuilders.get(url, BadPetId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -302,10 +302,10 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().is(201))
                 .andDo(print())
                 .andReturn(); //Return MvcResult
-        Assert.assertEquals(2, BadResult.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, BadResult.getRequest().getSession().getAttribute("id"));
 
         //exist pet
-        int petId = 3;
+        int petId = 1;
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(url, petId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -315,7 +315,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(print())
                 .andReturn(); //Return MvcResult
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
     @Test
@@ -324,7 +324,7 @@ class AnimalcareApplicationTests {
         MediaType JSON = MediaType.APPLICATION_JSON;//define data type as json
 
         //bad delete
-        int BadPetId = 1;
+        int BadPetId = 5;
         MvcResult BadResult = mockMvc.perform(MockMvcRequestBuilders.delete(url, BadPetId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -333,10 +333,10 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().is(201))
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, BadResult.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, BadResult.getRequest().getSession().getAttribute("id"));
 
         //right delete
-        int petId = 3;
+        int petId = 1;
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete(url, petId)
                 .session(session)
                 .accept(JSON))//Perform the requested
@@ -345,7 +345,7 @@ class AnimalcareApplicationTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn(); //Return MvcResult
 
-        Assert.assertEquals(2, result.getRequest().getSession().getAttribute("id"));
+        Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
 }
