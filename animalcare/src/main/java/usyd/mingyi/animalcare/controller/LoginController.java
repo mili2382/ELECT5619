@@ -510,7 +510,7 @@ public class LoginController {
     @GetMapping("/search/{keywords}")
     @ResponseBody
     public ResponseEntity<Object> getPosts(@PathVariable("keywords") String keywords) {
-        keywords = keywords + "*";
+        keywords = "*"+ keywords + "*";
         List<Post> postsByKeywords = postService.getPostsByKeywords(keywords);
         return new ResponseEntity<>(ResultData.success(postsByKeywords), HttpStatus.OK);
     }
