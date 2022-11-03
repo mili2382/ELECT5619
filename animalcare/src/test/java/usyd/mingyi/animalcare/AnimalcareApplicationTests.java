@@ -1,3 +1,4 @@
+/*
 package usyd.mingyi.animalcare;
 
 import org.json.JSONArray;
@@ -348,4 +349,4 @@ class AnimalcareApplicationTests {
         Assert.assertEquals(1, result.getRequest().getSession().getAttribute("id"));
     }
 
-}
+}*/

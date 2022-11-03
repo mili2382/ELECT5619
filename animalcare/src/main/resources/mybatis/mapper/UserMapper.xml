@@ -57,7 +57,7 @@
 
     <update id="updateUser" parameterType="User">
         update user
-        set  email = #{email}, nickname = #{nickName}, description = #{description}<if test="userImageAddress !=null and userImageAddress !=''">,user_image_address = #{userImageAddress}</if>
+        set  <if test="email !=null and email !=''">email = #{email},</if> nickname = #{nickName}, description = #{description}<if test="userImageAddress !=null and userImageAddress !=''">,user_image_address = #{userImageAddress}</if>
         where id = #{id};
     </update>
 

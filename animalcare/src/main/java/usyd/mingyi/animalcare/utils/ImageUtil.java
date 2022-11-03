@@ -55,6 +55,7 @@ public class ImageUtil {
     }
 
 
+
     /*把本地图片编码成base64字符串*/
     public static String ImageToBase64ByLocal(String imgFile) {// 将图片文件转化为字节数组字符串，并对其进行Base64编码处理
 

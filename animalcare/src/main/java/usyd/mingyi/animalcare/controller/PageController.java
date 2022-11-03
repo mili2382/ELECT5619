@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import usyd.mingyi.animalcare.config.ProjectProperties;
 import usyd.mingyi.animalcare.pojo.Comment;
 import usyd.mingyi.animalcare.pojo.Pet;
@@ -22,6 +25,8 @@ import usyd.mingyi.animalcare.utils.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -91,7 +96,9 @@ public class PageController {
     @PostMapping("/signup")
     @ResponseBody
     public ResponseEntity<Object> signup(@RequestBody User userInfo) {
-
+        if(StringUtil.isNullOrEmpty(userInfo.getUserImageAddress())){
+            userInfo.setUserImageAddress("http://35.189.24.208:8080/api/images/default.jpg");
+        }
         userInfo.setPassword(JasyptEncryptorUtils.encode(userInfo.getPassword()));
         userInfo.setUuid(UUID.randomUUID().toString());
         String randomNickname = RandomUtils.getRandomNickname(restTemplate);
@@ -182,6 +189,43 @@ public class PageController {
         return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
     }
 
+    @PostMapping("/android/edit")
+    @ResponseBody
+    public ResponseEntity<Object> updateUserInfoInAndroid(@RequestParam(value = "avatar",required = false) MultipartFile avatar,
+                                                          @RequestParam("nickName") String nickName,
+                                                          @RequestParam("description") String description,
+                                                          HttpSession session) {
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
+        int id = (int) session.getAttribute("id");
+        String userName = (String) session.getAttribute("userName");
+        User userInfo = new User();
+        userInfo.setNickName(nickName);
+        userInfo.setDescription(description);
+        userInfo.setId(id);
+
+        try {
+            //存入用户头像
+            String originalName = avatar.getOriginalFilename();
+            System.out.println(originalName);
+            String suffix = originalName.substring(originalName.lastIndexOf("."));
+            String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+            String path = fileDiskLocation + userName; //文件路径
+            File newFile = new File(path+ File.separator + tempFileName);
+            if(!newFile.getParentFile().exists()){
+                newFile.getParentFile().mkdirs();
+            }
+            avatar.transferTo(newFile);
+            userInfo.setUserImageAddress(projectPrefix + userName + "/" + tempFileName);
+        }catch (NullPointerException | IOException e) {
+            e.printStackTrace();
+        }
+        userService.updateUser(userInfo);
+        return new ResponseEntity<>(ResultData.success("Update success"), HttpStatus.OK);
+    }
+
+
     @PostMapping("/post/newPost")
     @ResponseBody
     public ResponseEntity<Object> upLoadPost(@RequestBody Map map, HttpServletRequest request) {
@@ -238,6 +282,60 @@ public class PageController {
                 }
             }
         }catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<>(ResultData.success("Success upload files"), HttpStatus.OK);
+
+    }
+
+    @PostMapping("/post/android/newPost")
+    @ResponseBody
+    @Transactional
+    public ResponseEntity<Object> upLoadPostInAndroid(@RequestParam(value = "images",required = false) MultipartFile[] images,
+                                                                                @RequestParam("postTopic") String postTopic,
+                                                                                @RequestParam("postContent") String postContent,
+                                                                                @RequestParam("postTag") String postTag,
+                                                                                HttpServletRequest request) {
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
+
+        HttpSession session = request.getSession();
+
+        String userName = (String) session.getAttribute("userName");
+        int id = (int) session.getAttribute("id");
+
+        Post post = new Post();
+        post.setUserId(id);
+        post.setLove(0);
+        post.setPosTime(System.currentTimeMillis());
+        post.setPostContent(postContent);
+        post.setTopic(postTopic);
+        post.setTag(postTag);
+        if (postService.addPost(post) != 1) {
+            return new ResponseEntity<>(ResultData.fail(201, "Content invalid"), HttpStatus.CREATED);
+        }
+        Integer postId = post.getPostId();
+
+        try {
+            for(int i=0;i<images.length;i++){
+
+                String originalName = images[i].getOriginalFilename();
+                System.out.println(originalName);
+                String suffix = originalName.substring(originalName.lastIndexOf("."));
+                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+                String path = fileDiskLocation + userName; //文件路径
+                postService.addImage(postId, projectPrefix + userName + "/" + tempFileName);
+
+                File newFile = new File(path+ File.separator + tempFileName);
+                if(!newFile.getParentFile().exists()){
+                    newFile.getParentFile().mkdirs();
+                }
+                images[i].transferTo(newFile);
+            }
+
+        }catch (NullPointerException | IOException e) {
             e.printStackTrace();
         }
 
@@ -449,6 +547,67 @@ public class PageController {
                 return new ResponseEntity<>(ResultData.fail(201, "File invalid"), HttpStatus.CREATED);
 
             }
+        }
+
+        return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
+    }
+
+    @PostMapping("/pet/android/newPet")
+    public ResponseEntity<Object> addPetInAndroid(@RequestParam(value = "images",required = false) MultipartFile[] images,
+                                                  @RequestParam(value = "avatar",required = false) MultipartFile avatar,
+                                                  @RequestParam("petName") String petName,
+                                                  @RequestParam("category") String category,
+                                                  @RequestParam("petDescription") String petDescription,
+                                                  HttpServletRequest request, HttpSession session) {
+        String fileDiskLocation = projectProperties.fileDiskLocation;
+        ;
+        String projectPrefix = projectProperties.projectPrefix;
+        int id = (int) session.getAttribute("id");
+        String userName = (String) session.getAttribute("userName");
+        Pet pet = new Pet();
+        pet.setUserId(id);
+        pet.setCategory(category);
+        pet.setPetName(petName);
+        pet.setPetDescription(petDescription);
+
+        try {
+         //存入宠物头像
+                String originalName = avatar.getOriginalFilename();
+                System.out.println(originalName);
+                String suffix = originalName.substring(originalName.lastIndexOf("."));
+                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+                String path = fileDiskLocation + userName; //文件路径
+                File newFile = new File(path+ File.separator + tempFileName);
+                if(!newFile.getParentFile().exists()){
+                    newFile.getParentFile().mkdirs();
+                }
+                avatar.transferTo(newFile);
+            pet.setPetImageAddress(projectPrefix + userName + "/" + tempFileName);
+        }catch (NullPointerException | IOException e) {
+            e.printStackTrace();
+        }
+
+
+        petService.addPet(pet);
+        Integer petId = pet.getPetId();
+        try {
+            for(int i=0;i<images.length;i++){
+
+                String originalName = images[i].getOriginalFilename();
+                System.out.println(originalName);
+                String suffix = originalName.substring(originalName.lastIndexOf("."));
+                String tempFileName = UUID.randomUUID().toString() + suffix; //文件名
+                String path = fileDiskLocation + userName; //文件路径
+                petService.addImage(petId, projectPrefix + userName + "/" + tempFileName);
+                File newFile = new File(path+ File.separator + tempFileName);
+                if(!newFile.getParentFile().exists()){
+                    newFile.getParentFile().mkdirs();
+                }
+                images[i].transferTo(newFile);
+            }
+
+        }catch (NullPointerException | IOException e) {
+            e.printStackTrace();
         }
 
         return new ResponseEntity<>(ResultData.success("OK"), HttpStatus.OK);
